@@ -1,39 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ねこまっぷ（NekoMap）
 
-## Getting Started
+## プロジェクト概要
 
-First, run the development server:
+「ねこまっぷ」は、地域で見かけた猫の情報を投稿・地図上で可視化する Web アプリケーションです。
+ユーザーが見つけた猫の写真・特徴・位置情報を記録し、地域の猫スポットを共有することを目的としています。
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 主な機能
+
+- 地図上での猫スポット表示（Google Maps JavaScript API）
+- 猫の投稿（写真・特徴・位置情報・コメント）
+- 投稿一覧・詳細の表示
+- 種類や時間帯などによるフィルタリング
+- 現在地付近の猫スポット表示
+
+## 使用技術
+
+### フロントエンド
+
+- Next.js 16
+- React 19
+- TypeScript 5
+- Tailwind CSS 4
+- DaisyUI 5
+
+### バックエンド・インフラ
+
+- Supabase（認証 / データベース / ストレージ）
+- Google Maps JavaScript API
+
+## ディレクトリ構成
+
+```
+digital-contents/
+frontend/        # Next.js フロントエンド
+backend/         # API（今後使用予定）
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 開発環境のセットアップ
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+使用する Node.js / npm のバージョン：
 
-## Learn More
+- Node.js v24.11.1
+- npm 10 以上
 
-To learn more about Next.js, take a look at the following resources:
+## 環境変数
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+環境変数を `.env.local` に設定してください
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 開発スケジュール
 
-## Deploy on Vercel
+| 日付    | 内容                   |
+| ------- | ---------------------- |
+| 11/28   | モック完成（中間発表） |
+| 12/12   | β 版リリース           |
+| 12/15〜 | ユーザー評価           |
+| 12/23   | 最終発表               |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 注意事項
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-### nodeのバージョン
-v24.9.0
+- `.next/` と `node_modules/` は Git に含めない（`.gitignore` に記載）
+- Supabase の接続情報は `.env.local` に記述し、値は絶対に共有しない
+- ブランチ名は `feature/〇〇`、`fix/〇〇` などで統一
+- 基本作業ディレクトリは `frontend/` を使用

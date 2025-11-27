@@ -19,14 +19,12 @@ export default function MainMenu({ open, onClose }: Props) {
 
   return (
     <>
-      {/* 背景オーバーレイ（クリックで閉じる） */}
-      <div
-        className="fixed inset-0 z-40"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 z-40" onClick={onClose} />
 
-      {/* メニュー本体 */}
-      <aside className="fixed top-0 left-0 h-full w-64 bg-base-100 shadow-lg p-4 z-50 flex flex-col gap-3">
+      <aside
+        className="fixed top-0 left-0 h-full w-64 bg-base-100 shadow-lg p-4 z-50 flex flex-col gap-3"
+        style={{ top: "60px", height: "calc(100% - 60px)" }}
+      >
         <h2 className="text-xl font-bold mb-4">メインメニュー</h2>
 
         <button

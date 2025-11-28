@@ -1,5 +1,6 @@
 "use client";
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Header from "./components/Header";
 import Map from "./components/Map"
 import TabsBar from "./components/TabsBar";
@@ -7,6 +8,7 @@ import Timeline from "./components/Timeline";
 
 export default function Home() {
   const [view, setView] = useState('split'); // 'split', 'map', 'timeline'
+  const router = useRouter();
 
   return (
     <main className="flex flex-col h-screen">
@@ -32,6 +34,28 @@ export default function Home() {
           <Timeline view={view} setView={setView} />
         </div>
       </div>
+
+      {/* 右下の投稿ボタン */}
+      <button
+        onClick={() => router.push("/post")}
+        className=" fixed right-6 bottom-6 z-50 btn btn-primary flex items-center gap-2 px-5 py-4 rounded-full"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M14 5l7 7m0 0l-7 7m7-7H3"
+          />
+        </svg>
+        <span>投稿する</span>
+      </button>
     </main>
   );
 }

@@ -26,11 +26,8 @@ export default function Post() {
       <Header />
 
       <div className="flex-1 px-5 pt-6 pb-4">
-        {/* --- 写真 --- */}
         <section className="mb-8">
           <h2 className="text-lg font-semibold mb-3">写真</h2>
-
-          {/* ファイル入力のカスタムラベル */}
           <label className="inline-flex items-center justify-center px-4 py-2 border rounded-lg cursor-pointer select-none text-sm shadow-sm hover:shadow-md">
             <input
               type="file"
@@ -44,7 +41,6 @@ export default function Post() {
             <span>画像をアップロードする</span>
           </label>
 
-          {/* プレビュー */}
           <div className="mt-6">
             {previewUrl ? (
               <div className="w-full max-w-full h-56 md:h-72 bg-gray-100 border rounded-md overflow-hidden flex items-center justify-center">
@@ -62,16 +58,13 @@ export default function Post() {
           </div>
         </section>
 
-        {/* --- 位置情報の追加 --- */}
         <section className="mb-8">
           <h2 className="text-lg font-semibold mb-3">位置情報の追加</h2>
-
           <div className="w-full h-64 md:h-80 rounded-md overflow-hidden border">
             <Map />
           </div>
         </section>
 
-        {/* --- コメント入力欄 --- */}
         <section className="mb-6">
           <h2 className="text-lg font-semibold mb-3">コメント</h2>
 
@@ -84,7 +77,6 @@ export default function Post() {
         </section>
       </div>
 
-      {/* 下書き保存ボタン */}
       <div className="px-5 pb-6">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <button
@@ -96,7 +88,6 @@ export default function Post() {
             下書き保存
           </button>
 
-          {/* 投稿ボタン */}
           <div>
             <Button>
               <div className="flex items-center gap-2">

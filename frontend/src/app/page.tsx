@@ -7,7 +7,7 @@ import TabsBar from "./components/TabsBar";
 import Timeline from "./components/Timeline";
 
 export default function Home() {
-  const [view, setView] = useState('split'); // 'split', 'map', 'timeline'
+  const [view, setView] = useState<'split' | 'map' | 'timeline'>('split'); // 'split', 'map', 'timeline'
   const router = useRouter();
 
   return (

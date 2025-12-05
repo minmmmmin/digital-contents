@@ -1,7 +1,12 @@
 "use client";
 
 import { GoogleMap, LoadScript } from "@react-google-maps/api";
+import { Dispatch, SetStateAction } from "react";
 
+interface MapProps {
+  view: 'split' | 'map' | 'timeline';
+  setView: Dispatch<SetStateAction<'split' | 'map' | 'timeline'>>;
+}
 
 const containerStyle = {
   width: "100%",
@@ -15,7 +20,7 @@ const center = {
 };
 
 
-export default function Map() {
+export default function Map({ view, setView }: MapProps) {
   return (
     <div className="relative w-full h-full">
       <LoadScript

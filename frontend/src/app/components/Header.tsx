@@ -29,7 +29,7 @@ export default function Header() {
               />
             </svg>
           </button>
-          <h1 className="text-lg font-bold">ねこあるき</h1>
+          <h1 className="text-2xl font-bold">ねこあるき</h1>
 
           <div className="avatar">
             <div className="w-9 h-9 rounded-full ring ring-gray-300 cursor-pointer"></div>

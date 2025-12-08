@@ -25,12 +25,12 @@ const PostCard = ({ post }: PostCardProps) => {
       <div className="flex-1">
         {/* User Info */}
         <div className="flex items-center space-x-2">
-          <span className="font-bold text-black">{post.username}</span>
-          <span className="text-sm text-gray-500">{post.location}</span>
+          <span className="font-bold text-base text-black">{post.username}</span>
+          <span className="text-xs text-gray-500">{post.location}</span>
         </div>
 
         {/* Post Body */}
-        <p className="text-black mt-1">{post.body}</p>
+        <p className="text-sm mt-1">{post.body}</p>
 
         {/* Post Image */}
         {post.imageUrl && (

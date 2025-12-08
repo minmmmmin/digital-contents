@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Yusei_Magic, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const yusei_magic = Yusei_Magic({
+  weight: "400",
+  variable: "--font-yusei-magic",
   subsets: ["latin"],
 });
 
@@ -23,9 +24,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ja">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${yusei_magic.variable} ${geistMono.variable} antialiased`}
       >
         {children}
       </body>

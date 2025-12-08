@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ねこまっぷ",
+  title: "ねこあるき",
   description: "地域の猫スポットを共有しよう",
 };
 

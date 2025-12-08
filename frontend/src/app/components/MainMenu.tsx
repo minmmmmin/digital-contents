@@ -35,19 +35,19 @@ export default function MainMenu({ open, onClose }: Props) {
         </button>
         <button
           className="btn btn-outline btn-sm justify-start"
-          onClick={() => go("/")}
+          onClick={() => go("/post")}
         >
           投稿する
         </button>
         <button
           className="btn btn-outline btn-sm justify-start"
-          onClick={() => go("/")}
+          onClick={() => go("/user-setting")}
         >
           個人設定
         </button>
         <button
           className="btn btn-outline btn-sm justify-start"
-          onClick={() => go("/")}
+          onClick={() => go("/usage")}
         >
           使い方
         </button>

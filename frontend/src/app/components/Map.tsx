@@ -1,6 +1,7 @@
 "use client";
 
-import { GoogleMap, LoadScript } from "@react-google-maps/api";
+
+import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
 import { Dispatch, SetStateAction } from "react";
 
 interface MapProps {
@@ -21,11 +22,38 @@ const center = {
 
 
 export default function Map({ view, setView }: MapProps) {
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+  })
+
+  if (loadError) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-2xl font-bold text-red-600 mb-2">
+            地図の読み込みに失敗しました
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isLoaded) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-center flex flex-col items-center">
+          <span className="loading loading-spinner loading-lg text-neutral"></span>
+          <div className="text-lg font-semibold mt-4">
+            読み込み中…
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+
   return (
     <div className="relative w-full h-full">
-      <LoadScript
-        googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""}
-      >
         {/* いったん全部要素は載せています */}
         <GoogleMap
           mapContainerStyle={containerStyle}
@@ -36,8 +64,7 @@ export default function Map({ view, setView }: MapProps) {
             gestureHandling: "greedy",
           }}
         >
-        </GoogleMap>
-      </LoadScript>
+      </GoogleMap>
     </div>
   );
 }

@@ -3,20 +3,22 @@
 import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { createClient } from '@/lib/supabase/client'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 export default function AuthPage() {
   const supabase = createClient()
-  const [redirectUrl, setRedirectUrl] = useState('');
 
-  useEffect(() => {
-    // ログイン後にリダイレクトしたいURLをここに設定します
-    // 例えば、現在のページのオリジンにリダイレクトしたい場合
-    setRedirectUrl(window.location.origin);
-  }, []);
+  // ログイン後にリダイレクトしたいURLをここに設定します
+  // 例えば、現在のページのオリジンにリダイレクトしたい場合
+  const [redirectUrl] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.location.origin
+    }
+    return ''
+  })
 
   if (!redirectUrl) {
-    return null; // redirectUrlが設定されるまでレンダリングしない
+    return null // redirectUrlが設定されるまでレンダリングしない
   }
 
   return (

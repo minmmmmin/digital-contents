@@ -1,6 +1,6 @@
 "use client";
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Header from "./components/Header";
 import Map from "./components/Map"
 import TabsBar from "./components/TabsBar";
@@ -9,6 +9,16 @@ import Timeline from "./components/Timeline";
 export default function Home() {
   const [view, setView] = useState<'split' | 'map' | 'timeline'>('split'); // 'split', 'map', 'timeline'
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('login') === 'success') {
+      setShowSuccessModal(true);
+      // URLからクエリパラメータを削除
+      router.replace('/', { scroll: false });
+    }
+  }, [searchParams, router]);
 
   return (
     <main className="flex flex-col h-screen">
@@ -58,6 +68,19 @@ export default function Home() {
         </svg>
         <span>投稿する</span>
       </button>
+
+      {/* ログイン成功モーダル */}
+      {showSuccessModal && (
+        <dialog id="login_success_modal" className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg">お知らせ</h3>
+            <p className="py-4">ログインしました。</p>
+            <div className="modal-action">
+              <button className="btn" onClick={() => setShowSuccessModal(false)}>閉じる</button>
+            </div>
+          </div>
+        </dialog>
+      )}
     </main>
   );
 }

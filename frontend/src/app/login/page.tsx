@@ -3,21 +3,27 @@
 import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { createClient } from '@/lib/supabase/client'
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function AuthPage() {
   const supabase = createClient()
+  const router = useRouter()
 
-  // ログイン後にリダイレクトしたいURLをここに設定します
-  // 例えば、現在のページのオリジンにリダイレクトしたい場合
-  const [redirectUrl, setRedirectUrl] = useState("")
-
-  // CSR でのみ値を設定
   useEffect(() => {
-    Promise.resolve().then(() => {
-      setRedirectUrl(window.location.origin)
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        router.push('/?login=success')
+      }
     })
-  }, [])
+
+    return () => subscription.unsubscribe()
+  }, [supabase, router])
+
+  const redirectUrl =
+    typeof window !== 'undefined' ? window.location.origin : ''
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">

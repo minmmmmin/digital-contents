@@ -5,8 +5,8 @@ import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
 import { Dispatch, SetStateAction } from "react";
 
 interface MapProps {
-  view: 'split' | 'map' | 'timeline';
-  setView: Dispatch<SetStateAction<'split' | 'map' | 'timeline'>>;
+  view?: 'split' | 'map' | 'timeline';
+  setView?: Dispatch<SetStateAction<'split' | 'map' | 'timeline'>>;
 }
 
 const containerStyle = {

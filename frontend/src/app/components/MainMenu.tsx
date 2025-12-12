@@ -41,7 +41,7 @@ export default function MainMenu({ open, onClose }: Props) {
         </button>
         <button
           className="btn btn-outline btn-sm justify-start"
-          onClick={() => go("/user-setting")}
+          onClick={() => go("/user-settings")}
         >
           個人設定
         </button>

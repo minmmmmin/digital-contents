@@ -85,7 +85,7 @@ export default function PostForm({ onClose }: PostFormProps) {
             className="btn rounded-full px-6 py-3 shadow-sm"
             onClick={onClose} // onCloseを呼び出す
           >
-            キャンセル
+            下書きを保存
           </button>
 
           <div>

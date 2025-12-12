@@ -7,6 +7,7 @@ import TabsBar from "./components/TabsBar";
 import { useWindowSize } from "@/lib/hooks/useWindowSize";
 import Timeline from "./components/Timeline";
 import PostForm from "./components/PostForm";
+import MainMenu from "./components/MainMenu";
 
 export default function Home() {
   const [view, setView] = useState<"split" | "map" | "timeline">("split"); // 'split', 'map', 'timeline'
@@ -16,6 +17,7 @@ export default function Home() {
   const { width } = useWindowSize();
   const isPC = width > 1024;
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     if (searchParams.get("login") === "success") {
@@ -35,9 +37,20 @@ export default function Home() {
 
   return (
     <main className="flex flex-col h-screen">
-      <Header />
+      <Header onMenuClick={() => setIsMenuOpen(!isMenuOpen)} />
+      <MainMenu
+        open={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        isPC={isPC}
+        onPostClick={() => setIsPostModalOpen(true)}
+      />
+
       {isPC ? (
-        <div className="flex flex-1 min-h-0">
+        <div
+          className={`flex flex-1 min-h-0 transition-all duration-300 ${
+            isMenuOpen ? "ml-64" : ""
+          }`}
+        >
           <div className="w-128 h-full flex flex-col border-r border-gray-200">
             <TabsBar />
             <div className="flex-1 overflow-y-auto">

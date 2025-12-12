@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 type Props = {
   open: boolean;
   onClose: () => void;
+  isPC: boolean;
+  onPostClick: () => void;
 };
 
-export default function MainMenu({ open, onClose }: Props) {
+export default function MainMenu({ open, onClose, isPC, onPostClick }: Props) {
   const router = useRouter();
 
   const go = (path: string) => {
@@ -35,7 +37,14 @@ export default function MainMenu({ open, onClose }: Props) {
         </button>
         <button
           className="btn btn-outline btn-sm justify-start"
-          onClick={() => go("/post")}
+          onClick={() => {
+            if (isPC) {
+              onPostClick();
+              onClose(); // メニューを閉じる
+            } else {
+              go("/post");
+            }
+          }}
         >
           投稿する
         </button>

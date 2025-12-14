@@ -1,10 +1,7 @@
-import Header from "../components/Header";
-
-export default function Usage() {
+export default function UserSetting() {
   return (
-    <main className="flex flex-col h-screen">
-      <Header />
-      <h2 className="text-2xl font-bold p-4">ユーザー設定（仮ページ）</h2>
+    <main className="p-4">
+      <h2 className="text-2xl font-bold">ユーザー設定（仮ページ）</h2>
       ユーザー設定ページでは、アカウント情報の変更や通知設定の管理ができます。
       <section className="px-4 py-2">
         <h3 className="text-xl font-semibold mb-2">アカウント情報の変更方法</h3>

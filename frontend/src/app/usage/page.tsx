@@ -1,11 +1,7 @@
-import Header from "../components/Header";
-
 export default function Usage() {
   return (
-    <main className="flex flex-col h-screen">
-      <Header />
-
-      <h2 className="text-2xl font-bold p-4">使い方（仮ページ）</h2>
+    <main className="p-4">
+      <h2 className="text-2xl font-bold">使い方（仮ページ）</h2>
       ねこあるきは、猫の写真を投稿して共有するアプリです。
       <section className="px-4 py-2">
         <h3 className="text-xl font-semibold mb-2">写真の投稿方法</h3>

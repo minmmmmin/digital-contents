@@ -1,23 +1,22 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Header from "./components/Header";
 import Map from "./components/Map";
 import TabsBar from "./components/TabsBar";
-import { useWindowSize } from "@/lib/hooks/useWindowSize";
 import Timeline from "./components/Timeline";
-import PostForm from "./components/PostForm";
-import MainMenu from "./components/MainMenu";
+import { LayoutContext } from "@/lib/contexts/LayoutContext";
 
 export default function Home() {
-  const [view, setView] = useState<"split" | "map" | "timeline">("split"); // 'split', 'map', 'timeline'
+  const [view, setView] = useState<"split" | "map" | "timeline">("split");
   const router = useRouter();
   const searchParams = useSearchParams();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const { width } = useWindowSize();
-  const isPC = width > 1024;
-  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const layoutContext = useContext(LayoutContext);
+  if (!layoutContext) {
+    throw new Error("LayoutContext must be used within a LayoutProvider");
+  }
+  const { isPC, setIsPostModalOpen } = layoutContext;
 
   useEffect(() => {
     if (searchParams.get("login") === "success") {
@@ -36,21 +35,9 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-col h-screen">
-      <Header onMenuClick={() => setIsMenuOpen(!isMenuOpen)} />
-      <MainMenu
-        open={isMenuOpen}
-        onClose={() => setIsMenuOpen(false)}
-        isPC={isPC}
-        onPostClick={() => setIsPostModalOpen(true)}
-      />
-
+    <>
       {isPC ? (
-        <div
-          className={`flex flex-1 min-h-0 transition-all duration-300 ${
-            isMenuOpen ? "ml-64" : ""
-          }`}
-        >
+        <>
           <div className="w-128 h-full flex flex-col border-r border-gray-200">
             <TabsBar />
             <div className="flex-1 overflow-y-auto">
@@ -60,9 +47,9 @@ export default function Home() {
           <div className="flex-1 h-full">
             <Map view="map" setView={setView} />
           </div>
-        </div>
+        </>
       ) : (
-        <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 flex flex-col min-h-0 w-full">
           <div
             className={`transition-all duration-300 ease-in-out overflow-hidden ${
               view === "split" ? "h-1/2" : view === "map" ? "flex-1" : "h-0"
@@ -126,19 +113,6 @@ export default function Home() {
           </div>
         </dialog>
       )}
-
-      {/* 投稿フォームモーダル */}
-      <dialog
-        id="post_modal"
-        className={`modal ${isPostModalOpen ? "modal-open" : ""}`}
-      >
-        <div className="modal-box w-11/12 max-w-4xl h-5/6 p-0">
-          <PostForm onClose={() => setIsPostModalOpen(false)} />
-        </div>
-        <form method="dialog" className="modal-backdrop">
-          <button onClick={() => setIsPostModalOpen(false)}>close</button>
-        </form>
-      </dialog>
-    </main>
+    </>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Yusei_Magic, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import LayoutProvider from "./components/LayoutProvider";
 
 const yusei_magic = Yusei_Magic({
   weight: "400",
@@ -26,9 +27,9 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body
-        className={`${yusei_magic.variable} ${geistMono.variable} antialiased`}
+        className={`${yusei_magic.variable} ${geistMono.variable} antialiased flex flex-col h-screen`}
       >
-        {children}
+        <LayoutProvider>{children}</LayoutProvider>
       </body>
     </html>
   );

@@ -5,6 +5,8 @@ import Map from "./components/Map";
 import TabsBar from "./components/TabsBar";
 import Timeline from "./components/Timeline";
 import { LayoutContext } from "@/lib/contexts/LayoutContext";
+import type { Post } from "@/types/post";
+import PostCard from "./components/PostCard";
 
 export default function Home() {
   const [view, setView] = useState<"split" | "map" | "timeline">("split");
@@ -17,6 +19,7 @@ export default function Home() {
     throw new Error("LayoutContext must be used within a LayoutProvider");
   }
   const { isPC, setIsPostModalOpen } = layoutContext;
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
   useEffect(() => {
     if (searchParams.get("login") === "success") {
@@ -35,6 +38,10 @@ export default function Home() {
     }
   };
 
+  const handlePinClick = (post: Post) => {
+    setSelectedPost(post);
+  };
+
   return (
     <>
       {isPC ? (
@@ -46,7 +53,7 @@ export default function Home() {
             </div>
           </div>
           <div className="flex-1 h-full">
-            <Map view="map" setView={setView} />
+            <Map view="map" setView={setView} onPinClick={handlePinClick} />
           </div>
         </>
       ) : (
@@ -56,7 +63,7 @@ export default function Home() {
               view === "split" ? "h-1/2" : view === "map" ? "flex-1" : "h-0"
             }`}
           >
-            <Map view={view} setView={setView} />
+            <Map view={view} setView={setView} onPinClick={handlePinClick} />
           </div>
           <div className={`${view === "map" ? "hidden" : ""}`}>
             <TabsBar />
@@ -108,6 +115,20 @@ export default function Home() {
                 className="btn"
                 onClick={() => setShowSuccessModal(false)}
               >
+                閉じる
+              </button>
+            </div>
+          </div>
+        </dialog>
+      )}
+
+      {/* ピンクリック時の詳細表示モーダル */}
+      {selectedPost && (
+        <dialog id="post_details_modal" className="modal modal-open">
+          <div className="modal-box">
+            <PostCard post={selectedPost} />
+            <div className="modal-action">
+              <button className="btn" onClick={() => setSelectedPost(null)}>
                 閉じる
               </button>
             </div>

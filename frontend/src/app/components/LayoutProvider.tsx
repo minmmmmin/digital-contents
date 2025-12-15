@@ -10,9 +10,10 @@ import PostForm from "./PostForm";
 
 type Props = {
   children: ReactNode;
+  user: any; // SupabaseのUserオブジェクトの型
 };
 
-export default function LayoutProvider({ children }: Props) {
+export default function LayoutProvider({ children, user }: Props) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
 
@@ -32,7 +33,7 @@ export default function LayoutProvider({ children }: Props) {
 
   return (
     <LayoutContext.Provider value={contextValue}>
-      <Header onMenuClick={() => setIsMenuOpen(!isMenuOpen)} />
+      <Header onMenuClick={() => setIsMenuOpen(!isMenuOpen)} user={user} />
       <MainMenu
         open={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}

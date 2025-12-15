@@ -20,6 +20,7 @@ export default function Home() {
 
   useEffect(() => {
     if (searchParams.get("login") === "success") {
+      router.refresh();
       setShowSuccessModal(true);
       // URLからクエリパラメータを削除
       router.replace("/", { scroll: false });

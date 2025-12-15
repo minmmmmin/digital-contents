@@ -1,8 +1,23 @@
-export default function UserSetting() {
+import { createClient } from "@/lib/supabase/server";
+
+export default async function UserSetting() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <main className="p-4">
-      <h2 className="text-2xl font-bold">ユーザー設定（仮ページ）</h2>
-      ユーザー設定ページでは、アカウント情報の変更や通知設定の管理ができます。
+      <h2 className="text-2xl font-bold">ユーザー設定</h2>
+      <section className="px-4 py-2">
+        <h3 className="text-xl font-semibold mb-2">ログイン中のユーザー</h3>
+        {user ? (
+          <p>メールアドレス: {user.email}</p>
+        ) : (
+          <p>ログインしていません。</p>
+        )}
+      </section>
+
       <section className="px-4 py-2">
         <h3 className="text-xl font-semibold mb-2">アカウント情報の変更方法</h3>
         <ol className="list-decimal list-inside space-y-1">

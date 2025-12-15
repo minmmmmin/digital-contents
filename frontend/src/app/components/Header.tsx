@@ -1,10 +1,13 @@
 "use client";
 
+import AuthButton from "./AuthButton";
+
 type Props = {
   onMenuClick: () => void;
+  user: any; // SupabaseのUserオブジェクトの型
 };
 
-export default function Header({ onMenuClick }: Props) {
+export default function Header({ onMenuClick, user }: Props) {
   return (
     <header className="w-full bg-base-100 border-b shadow-sm sticky top-0 z-50">
       <div className="w-full flex items-center justify-between px-4 py-3">
@@ -28,10 +31,7 @@ export default function Header({ onMenuClick }: Props) {
           </svg>
         </button>
         <h1 className="text-2xl font-bold">ねこあるき</h1>
-
-        <div className="avatar">
-          <div className="w-9 h-9 rounded-full ring ring-gray-300 cursor-pointer"></div>
-        </div>
+        <AuthButton user={user} />
       </div>
     </header>
   );

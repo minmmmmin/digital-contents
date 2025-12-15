@@ -15,19 +15,18 @@ export default function AuthPage() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        router.push('/?login=success')
+        window.location.href = '/?login=success';
       }
-    })
+    });
 
-    return () => subscription.unsubscribe()
-  }, [supabase, router])
+    return () => subscription.unsubscribe();
+  }, [supabase]);
 
   const redirectUrl =
     typeof window !== 'undefined' ? window.location.origin : ''
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-3 rounded-xl bg-white shadow-lg">
+    <div className="w-full max-w-md p-8 space-y-3 rounded-xl bg-white shadow-lg">
         <h1 className="text-2xl font-bold text-center">Login / Register</h1>
         <Auth
           supabaseClient={supabase}
@@ -36,6 +35,5 @@ export default function AuthPage() {
           redirectTo={redirectUrl ? `${redirectUrl}/auth/callback` : undefined}
         />
       </div>
-    </div>
   )
 }

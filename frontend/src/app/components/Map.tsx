@@ -44,7 +44,7 @@ export default function Map({ view, setView, onPinClick }: MapProps) {
           latitude,
           longitude,
           created_at,
-          users (
+          users!posts_user_id_fkey (
             name,
             avatar_url
           )

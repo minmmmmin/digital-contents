@@ -30,6 +30,28 @@ export default async function RootLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
+  if (user) {
+    // public.usersにユーザーが存在するかチェック
+    const { data: userProfile } = await supabase
+      .from("users")
+      .select("user_id")
+      .eq("user_id", user.id)
+      .single();
+
+    // 存在しない場合、挿入する
+    if (!userProfile) {
+      const { error } = await supabase.from("users").insert({
+        user_id: user.id,
+        // ソーシャルログイン時の名前やアバターをuser.user_metadataから取得
+        name: user.user_metadata.name || user.user_metadata.full_name,
+        avatar_url: user.user_metadata.avatar_url,
+      });
+      if (error) {
+        console.error("Error inserting new user into public.users:", error);
+      }
+    }
+  }
+
   return (
     <html lang="ja">
       <body

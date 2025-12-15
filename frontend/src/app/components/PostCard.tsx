@@ -36,13 +36,13 @@ const PostCard = ({ post }: PostCardProps) => {
         </div>
 
         {/* Post Body */}
-        <p className="text-sm mt-1">{post.body}</p>
+        <p className="text-sm mt-1">{post.caption}</p>
 
         {/* Post Image */}
-        {post.imageUrl && (
+        {post.image_url && (
           <div className="mt-3 rounded-2xl overflow-hidden">
             <Image
-              src={post.imageUrl}
+              src={post.image_url}
               alt="猫の画像"
               width={500}
               height={300}

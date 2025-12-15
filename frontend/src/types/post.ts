@@ -9,4 +9,8 @@ export interface Post {
   likeCount: number;
   replies: Reply[];
   created_at: string;
+  latitude: number | null;
+  longitude: number | null;
+  image_url: string | null;
+  caption: string | null;
 }

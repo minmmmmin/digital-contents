@@ -8,6 +8,7 @@ import { Post } from "@/types/post";
 interface MapProps {
   view?: 'split' | 'map' | 'timeline';
   setView?: Dispatch<SetStateAction<'split' | 'map' | 'timeline'>>;
+  onPinClick?: (post: Post) => void;
 }
 
 // 初期表示位置（今は日本大学文理学部）
@@ -16,7 +17,18 @@ const center = {
   lng: 139.63409803900635,
 };
 
-export default function Map({ view, setView }: MapProps) {
+type FetchedPost = {
+  post_id: number;
+  user_id: string;
+  caption: string | null;
+  image_url: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  created_at: string;
+  users: { name: string; avatar_url: string | null } | null;
+};
+
+export default function Map({ view, setView, onPinClick }: MapProps) {
   const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
@@ -24,14 +36,39 @@ export default function Map({ view, setView }: MapProps) {
     const fetchPosts = async () => {
       const { data, error } = await supabase
         .from("posts")
-        .select("post_id, latitude, longitude")
+        .select(`
+          post_id,
+          user_id,
+          caption,
+          image_url,
+          latitude,
+          longitude,
+          created_at,
+          users (
+            name,
+            avatar_url
+          )
+        `)
         .not("latitude", "is", null)
         .not("longitude", "is", null);
 
       if (error) {
         console.error("Error fetching posts:", error);
       } else {
-        setPosts(data as Post[]);
+        const mappedPosts: Post[] = (data as unknown as FetchedPost[] ?? []).map((row) => ({
+          post_id: row.post_id,
+          user_id: row.user_id,
+          created_at: row.created_at,
+          latitude: row.latitude,
+          longitude: row.longitude,
+          image_url: row.image_url,
+          caption: row.caption,
+          username: row.users?.name ?? 'unknown',
+          location: undefined,
+          likeCount: 0, // TODO: Implement like count fetching
+          replies: [], // TODO: Implement reply fetching
+        }));
+        setPosts(mappedPosts);
       }
     };
 
@@ -48,6 +85,7 @@ export default function Map({ view, setView }: MapProps) {
       <AdvancedMarker
         key={post.post_id}
         position={{ lat: post.latitude!, lng: post.longitude! }}
+        onClick={() => onPinClick?.(post)}
       />
     ));
 

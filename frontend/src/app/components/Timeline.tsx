@@ -70,9 +70,12 @@ const Timeline = ({ view, setView, isPC }: TimelineProps) => {
         image_url: row.image_url,
         caption: row.caption,
         username: row.users?.name ?? 'unknown',
-        location: undefined,
-        likeCount: 0, // TODO: Implement like count fetching
-        replies: [], // TODO: Implement reply fetching
+        location: undefined, // DBに location 文字列が無いので一旦なし（必要なら後で追加）
+        imageUrl: row.image_url ?? undefined,
+        body: row.caption ?? '',
+        likes: [],
+        likeCount: 0,
+        replies: [], // PostCardで length を見るので必ず入れる
       }))
 
       setPosts(mappedPosts)

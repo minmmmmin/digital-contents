@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { formatPostDate } from '@/lib/dateUtils'
 import type { Post } from '@/types/post';
 
 interface PostCardProps {
@@ -7,7 +8,12 @@ interface PostCardProps {
 
 const PostCard = ({ post }: PostCardProps) => {
   return (
-    <div className="flex space-x-3 p-4 border-b border-gray-200">
+    <div className="relative flex space-x-3 p-4 border-b border-gray-200">
+      {/* Created At */}
+      <div className="absolute top-4 right-4 text-xs text-gray-400">
+        {post.created_at && formatPostDate(post.created_at)}
+      </div>
+
       {/* Avatar */}
       <div className="flex-shrink-0">
         <div className="w-12 h-12 rounded-full overflow-hidden">
@@ -26,7 +32,7 @@ const PostCard = ({ post }: PostCardProps) => {
         {/* User Info */}
         <div className="flex items-center space-x-2">
           <span className="font-bold text-base text-black">{post.username}</span>
-          <span className="text-xs text-gray-500">{post.location}</span>
+          {post.location && <span className="text-xs text-gray-500">{post.location}</span>}
         </div>
 
         {/* Post Body */}

@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
-import Map from "./Map";
+import SelectableMap from "./SelectableMap";
 import Button from "./Button";
 import { compressImage } from "@/lib/image/compressImage";
 
@@ -14,6 +14,7 @@ type PostFormProps = {
 export default function PostForm({ onClose }: PostFormProps) {
   const [file, setFile] = useState<File | null>(null);
   const [comment, setComment] = useState("");
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   // 画像プレビュー表示のためのURL生成
   const previewUrl = useMemo(() => {
@@ -84,7 +85,10 @@ export default function PostForm({ onClose }: PostFormProps) {
         <section className="mb-8">
           <h2 className="text-lg font-semibold mb-3">位置情報の追加</h2>
           <div className="w-full h-64 md:h-80 rounded-md overflow-hidden border">
-            <Map />
+            <SelectableMap
+              value={location}
+              onChange={setLocation}
+            />
           </div>
         </section>
 

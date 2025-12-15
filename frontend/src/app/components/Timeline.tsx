@@ -72,6 +72,7 @@ const Timeline = ({ view, setView, isPC }: TimelineProps) => {
         likes: [],
         likeCount: 0,
         replies: [], // PostCardで length を見るので必ず入れる
+        created_at: row.created_at, // これを追加
       }))
 
       setPosts(mapped)

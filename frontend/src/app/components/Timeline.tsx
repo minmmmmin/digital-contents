@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import type { Post } from '@/types/post'
 
-type Row = {
+type FetchedPost = {
   post_id: number
   user_id: string
   caption: string | null
@@ -54,27 +54,28 @@ const Timeline = ({ view, setView, isPC }: TimelineProps) => {
         .order('created_at', { ascending: false })
 
       if (error) {
-        console.error('Error fetching posts:', error) // エラーもコンソールに出力
+        console.error('Error fetching posts:', error)
         setError(error.message)
         setPosts([])
         setLoading(false)
         return
       }
 
-      console.log('Fetched data:', data) // 取得した生のデータを確認
-
-      const mapped: Post[] = ((data ?? []) as unknown as Row[]).map((row) => ({
-        id: String(row.post_id),
+      const mappedPosts: Post[] = (data as unknown as FetchedPost[] ?? []).map((row) => ({
+        post_id: row.post_id,
+        user_id: row.user_id,
+        created_at: row.created_at,
+        latitude: row.latitude,
+        longitude: row.longitude,
+        image_url: row.image_url,
+        caption: row.caption,
         username: row.users?.name ?? 'unknown',
-        location: undefined, // DBに location 文字列が無いので一旦なし（必要なら後で追加）
-        imageUrl: row.image_url ?? undefined,
-        body: row.caption ?? '',
-        likes: [],
-        likeCount: 0,
-        replies: [], // PostCardで length を見るので必ず入れる
+        location: undefined,
+        likeCount: 0, // TODO: Implement like count fetching
+        replies: [], // TODO: Implement reply fetching
       }))
 
-      setPosts(mapped)
+      setPosts(mappedPosts)
       setLoading(false)
     }
 
@@ -101,7 +102,7 @@ const Timeline = ({ view, setView, isPC }: TimelineProps) => {
         {error && <div className="p-4 text-sm text-red-600">取得に失敗しました: {error}</div>}
 
         {!loading && !error && posts.map((post) => (
-          <PostCard key={post.id} post={post} />
+          <PostCard key={post.post_id} post={post} />
         ))}
       </div>
     </div>

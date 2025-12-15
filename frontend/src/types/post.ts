@@ -6,4 +6,8 @@ export interface Post {
   longitude: number | null;
   image_url: string | null;
   caption: string | null;
+  username: string;
+  location?: string;
+  likeCount: number;
+  replies: any[];
 }

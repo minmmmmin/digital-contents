@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Map from "./Map";
 import Button from "./Button";
 
@@ -44,11 +45,14 @@ export default function PostForm({ onClose }: PostFormProps) {
 
           <div className="mt-6">
             {previewUrl ? (
-              <div className="w-full max-w-full h-56 md:h-72 bg-gray-100 border rounded-md overflow-hidden flex items-center justify-center">
-                <img
+              <div className="relative w-full max-w-full h-56 md:h-72 bg-gray-100 border rounded-md overflow-hidden flex items-center justify-center">
+                <Image
                   src={previewUrl}
                   alt="preview"
-                  className="object-contain w-full h-full"
+                  fill
+                  sizes="100vw"
+                  style={{ objectFit: "contain" }}
+                  unoptimized
                 />
               </div>
             ) : (

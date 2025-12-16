@@ -18,6 +18,11 @@ type FetchedPost = {
   users: { name: string; avatar_url: string | null } | null
 }
 
+type FavoriteRow = {
+  post_id: number
+  user_id: string
+}
+
 interface TimelineProps {
   view: 'split' | 'map' | 'timeline'
   setView: Dispatch<SetStateAction<'split' | 'map' | 'timeline'>>
@@ -35,6 +40,9 @@ const Timeline = ({ view, setView, isPC }: TimelineProps) => {
       setError(null)
 
       const supabase = createClient()
+
+      const { data: authData } = await supabase.auth.getUser()
+      const user = authData?.user ?? null
 
       const { data, error } = await supabase
         .from('posts')
@@ -61,7 +69,42 @@ const Timeline = ({ view, setView, isPC }: TimelineProps) => {
         return
       }
 
-      const mappedPosts: Post[] = (data as unknown as FetchedPost[] ?? []).map((row) => ({
+      const rows = (data as unknown as FetchedPost[] | null) ?? []
+
+      if (rows.length === 0) {
+        setPosts([])
+        setLoading(false)
+        return
+      }
+
+      const postIds = rows.map(r => r.post_id)
+
+      // favorites をまとめて取得
+      const { data: favData, error: favError } = await supabase
+        .from('favorites')
+        .select('post_id, user_id')
+        .in('post_id', postIds)
+
+      if (favError) {
+        console.error('Error fetching favorites:', favError)
+        setError(favError.message)
+        setPosts([])
+        setLoading(false)
+        return
+      }
+
+      const favs = (favData as FavoriteRow[] | null) ?? []
+
+      // post_idごとの件数、isLiked判定
+      const likeCountMap = new Map<number, number>()
+      const likedSet = new Set<number>()
+
+      for (const f of favs) {
+        likeCountMap.set(f.post_id, (likeCountMap.get(f.post_id) ?? 0) + 1)
+        if (user && f.user_id === user.id) likedSet.add(f.post_id)
+      }
+
+      const mappedPosts: Post[] = rows.map((row) => ({
         post_id: row.post_id,
         user_id: row.user_id,
         created_at: row.created_at,
@@ -74,7 +117,8 @@ const Timeline = ({ view, setView, isPC }: TimelineProps) => {
         imageUrl: row.image_url ?? undefined,
         body: row.caption ?? '',
         likes: [],
-        likeCount: 0,
+        likeCount: likeCountMap.get(row.post_id) ?? 0,
+        isLiked: likedSet.has(row.post_id),
         replies: [], // PostCardで length を見るので必ず入れる
       }))
 

@@ -47,6 +47,11 @@ export default function PostForm({ onClose }: PostFormProps) {
 
   const handleSubmitPost = async () => {
     try {
+      if (!file) {
+        alert("画像を選択してください");
+        return;
+      }
+
       if (!comment.trim()) {
         alert("コメントを入力してください");
         return;

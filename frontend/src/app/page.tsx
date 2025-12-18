@@ -60,7 +60,7 @@ export default function Home() {
             </div>
           </div>
           <div className="flex-1 h-full">
-            <Map view="map" setView={setView} onPinClick={handlePinClick} />
+            <Map view="map" setView={setView} onPinClick={handlePinClick} center={mapCenter} />
           </div>
         </>
       ) : (

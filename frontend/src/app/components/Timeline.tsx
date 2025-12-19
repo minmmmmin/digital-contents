@@ -60,8 +60,8 @@ const Timeline = ({ view, setView, isPC }: TimelineProps) => {
           users!posts_user_id_fkey (
             name,
             avatar_url
-          )
-          comments(count)
+          ),
+          comments!post_id(count)
         `)
         .order('created_at', { ascending: false })
 

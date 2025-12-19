@@ -5,7 +5,9 @@ import {
   Map as GoogleMap,
   AdvancedMarker,
   MapMouseEvent,
+  useMap,
 } from "@vis.gl/react-google-maps";
+import { useEffect } from "react";
 
 type LatLng = {
   lat: number;
@@ -18,10 +20,23 @@ interface SelectableMapProps {
 }
 
 // 初期表示位置（今は日本大学文理学部）
-const center = {
+const defaultCenter = {
   lat: 35.662186020148546,
   lng: 139.63409803900635,
 };
+
+function MapController({ value }: { value: LatLng | null }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map || !value) return;
+    map.setCenter(value);
+    // ズームレベルも変更するとより親切
+    // map.setZoom(15);
+  }, [map, value]);
+
+  return null;
+}
 
 export default function SelectableMap({
   value,
@@ -53,7 +68,7 @@ export default function SelectableMap({
     <div className="relative w-full h-full">
       <APIProvider apiKey={apiKey}>
         <GoogleMap
-          defaultCenter={center}
+          defaultCenter={defaultCenter}
           defaultZoom={15}
           mapId={mapId}
           gestureHandling="greedy"
@@ -65,6 +80,7 @@ export default function SelectableMap({
         >
 
           {value && <AdvancedMarker position={value} />}
+          <MapController value={value} />
         </GoogleMap>
       </APIProvider>
     </div>

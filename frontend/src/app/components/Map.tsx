@@ -2,7 +2,6 @@
 
 import { APIProvider, Map as GoogleMap, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Post } from "@/types/post";
 
@@ -37,15 +36,11 @@ function MapInner({ center }: { center?: { lat: number; lng: number } | null }) 
 
 export default function Map({ view, setView, onPinClick, center }: MapProps) {
   const [posts, setPosts] = useState<Post[]>([]);
-  const searchParams = useSearchParams();
-  const filter = searchParams.get('filter');
 
   useEffect(() => {
     const supabase = createClient();
     const fetchPosts = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-
-      let query = supabase
+      const { data, error } = await supabase
         .from("posts")
         .select(`
           post_id,
@@ -62,33 +57,6 @@ export default function Map({ view, setView, onPinClick, center }: MapProps) {
         `)
         .not("latitude", "is", null)
         .not("longitude", "is", null);
-
-      if (filter === 'my_posts' && user) {
-        query = query.eq('user_id', user.id);
-      } else if (filter === 'favorites' && user) {
-        const { data: favoritePosts, error: favError } = await supabase
-          .from('favorites')
-          .select('post_id')
-          .eq('user_id', user.id);
-
-        if (favError) {
-          console.error('Error fetching favorites:', favError);
-          setPosts([]);
-          return;
-        }
-
-        const postIds = favoritePosts.map(fav => fav.post_id);
-        if (postIds.length === 0) {
-          setPosts([]);
-          return;
-        }
-        query = query.in('post_id', postIds);
-      } else if ((filter === 'my_posts' || filter === 'favorites') && !user) {
-        setPosts([]);
-        return;
-      }
-
-      const { data, error } = await query;
 
       if (error) {
         console.error("Error fetching posts:", error);
@@ -113,7 +81,7 @@ export default function Map({ view, setView, onPinClick, center }: MapProps) {
     };
 
     fetchPosts();
-  }, [filter]);
+  }, []);
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;

@@ -27,9 +27,10 @@ interface TimelineProps {
   view: 'split' | 'map' | 'timeline'
   setView: Dispatch<SetStateAction<'split' | 'map' | 'timeline'>>
   isPC?: boolean
+  onMoveMap: (lat: number, lng: number) => void
 }
 
-const Timeline = ({ view, setView, isPC }: TimelineProps) => {
+const Timeline = ({ view, setView, isPC, onMoveMap }: TimelineProps) => {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -149,7 +150,7 @@ const Timeline = ({ view, setView, isPC }: TimelineProps) => {
         {error && <div className="p-4 text-sm text-red-600">取得に失敗しました: {error}</div>}
 
         {!loading && !error && posts.map((post) => (
-          <PostCard key={post.post_id} post={post} />
+          <PostCard key={post.post_id} post={post} onMoveMap={onMoveMap} />
         ))}
       </div>
     </div>

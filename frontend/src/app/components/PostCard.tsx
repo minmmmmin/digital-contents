@@ -10,9 +10,10 @@ const supabase = createClient()
 
 interface PostCardProps {
   post: Post
+  onMoveMap: (lat: number, lng: number) => void
 }
 
-const PostCard = ({ post }: PostCardProps) => {
+const PostCard = ({ post, onMoveMap }: PostCardProps) => {
   const [isLiked, setIsLiked] = useState(post.isLiked)
   const [likeCount, setLikeCount] = useState(post.likeCount)
   const [pending, setPending] = useState(false)
@@ -85,8 +86,25 @@ const PostCard = ({ post }: PostCardProps) => {
         {/* User Info */}
         <div className="flex items-center space-x-2">
           <span className="text-base text-black">{post.username}</span>
+
           {post.location && (
             <span className="text-xs text-gray-500">{post.location}</span>
+          )}
+
+          {/* 地図移動ボタン（仮） */}
+          {post.latitude && post.longitude && (
+            <button
+              type="button"
+              className="btn btn-xs btn-outline gap-1 text-gray-700"
+              title="地図で場所を見る"
+              onClick={() => {
+                if (!post.latitude || !post.longitude) return
+                onMoveMap(post.latitude, post.longitude)
+              }}
+            >
+              <span aria-hidden>📍</span>
+              地図で見る
+            </button>
           )}
         </div>
 

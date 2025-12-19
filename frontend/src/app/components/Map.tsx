@@ -1,6 +1,6 @@
 "use client";
 
-import { APIProvider, Map as GoogleMap, AdvancedMarker } from "@vis.gl/react-google-maps";
+import { APIProvider, Map as GoogleMap, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Post } from "@/types/post";
@@ -9,13 +9,8 @@ interface MapProps {
   view?: 'split' | 'map' | 'timeline';
   setView?: Dispatch<SetStateAction<'split' | 'map' | 'timeline'>>;
   onPinClick?: (post: Post) => void;
+  center?: { lat: number; lng: number } | null
 }
-
-// 初期表示位置（今は日本大学文理学部）
-const center = {
-  lat: 35.662186020148546,
-  lng: 139.63409803900635,
-};
 
 type FetchedPost = {
   post_id: number;
@@ -28,7 +23,18 @@ type FetchedPost = {
   users: { name: string; avatar_url: string | null } | null;
 };
 
-export default function Map({ view, setView, onPinClick }: MapProps) {
+function MapInner({ center }: { center?: { lat: number; lng: number } | null }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map || !center) return;
+    map.setCenter(center);
+  }, [map, center]);
+
+  return null;
+}
+
+export default function Map({ view, setView, onPinClick, center }: MapProps) {
   const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
@@ -106,12 +112,13 @@ export default function Map({ view, setView, onPinClick }: MapProps) {
     <div className="relative w-full h-full">
       <APIProvider apiKey={apiKey}>
         <GoogleMap
-          defaultCenter={center}
+          defaultCenter={{ lat: 35.662186020148546, lng: 139.63409803900635, }}
           defaultZoom={15}
           mapId={mapId}
           gestureHandling={"greedy"}
           disableDefaultUI={false}
         >
+          <MapInner center={center} />
           {markers}
         </GoogleMap>
       </APIProvider>

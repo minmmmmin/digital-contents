@@ -21,6 +21,11 @@ export default function Home() {
   const { isPC, setIsPostModalOpen } = layoutContext;
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
+  const [mapCenter, setMapCenter] = useState({
+    lat: 35.662186020148546,
+    lng: 139.63409803900635,
+  })
+
   useEffect(() => {
     if (searchParams.get("login") === "success") {
       router.refresh();
@@ -49,11 +54,13 @@ export default function Home() {
           <div className="w-128 h-full flex flex-col border-r border-gray-200">
             <TabsBar />
             <div className="flex-1 overflow-y-auto">
-              <Timeline view="timeline" setView={setView} isPC={isPC} />
+              <Timeline view="timeline" setView={setView} isPC={isPC} onMoveMap={(lat, lng) => {
+                setMapCenter({ lat, lng })
+              }} />
             </div>
           </div>
           <div className="flex-1 h-full">
-            <Map view="map" setView={setView} onPinClick={handlePinClick} />
+            <Map view="map" setView={setView} onPinClick={handlePinClick} center={mapCenter} />
           </div>
         </>
       ) : (
@@ -63,7 +70,7 @@ export default function Home() {
               view === "split" ? "h-1/2" : view === "map" ? "flex-1" : "h-0"
             }`}
           >
-            <Map view={view} setView={setView} onPinClick={handlePinClick} />
+              <Map view={view} setView={setView} onPinClick={handlePinClick} center={mapCenter} />
           </div>
           <div className={`${view === "map" ? "hidden" : ""}`}>
             <TabsBar />
@@ -77,7 +84,9 @@ export default function Home() {
                 : "h-0"
             }`}
           >
-            <Timeline view={view} setView={setView} isPC={isPC} />
+              <Timeline view={view} setView={setView} isPC={isPC} onMoveMap={(lat, lng) => {
+                setMapCenter({ lat, lng })
+              }} />
           </div>
         </div>
       )}
@@ -126,7 +135,9 @@ export default function Home() {
       {selectedPost && (
         <dialog id="post_details_modal" className="modal modal-open">
           <div className="modal-box">
-            <PostCard post={selectedPost} />
+            <PostCard post={selectedPost} onMoveMap={(lat, lng) => {
+              setMapCenter({ lat, lng })
+            }} />
             <div className="modal-action">
               <button className="btn" onClick={() => setSelectedPost(null)}>
                 閉じる

@@ -74,6 +74,7 @@ export default function Map({ view, setView, onPinClick, center }: MapProps) {
           location: undefined,
           likeCount: 0,
           isLiked: false,
+          commentCount: 0,
           replies: [],
         }));
         setPosts(mappedPosts);

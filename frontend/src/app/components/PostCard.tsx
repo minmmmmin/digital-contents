@@ -10,9 +10,10 @@ const supabase = createClient()
 
 interface PostCardProps {
   post: Post
+  onCommentClick: (postId: number) => void
 }
 
-const PostCard = ({ post }: PostCardProps) => {
+const PostCard = ({ post, onCommentClick }: PostCardProps) => {
   const [isLiked, setIsLiked] = useState(post.isLiked)
   const [likeCount, setLikeCount] = useState(post.likeCount)
   const [pending, setPending] = useState(false)
@@ -118,9 +119,13 @@ const PostCard = ({ post }: PostCardProps) => {
             <span role="img" aria-label="likes">❤️</span>
             <span>{likeCount}</span>
           </button>
-          <button className="flex items-center space-x-1 hover:text-blue-500 cursor-pointer">
+          <button
+            type="button"
+            onClick={() => onCommentClick(post.post_id)}
+            className="flex items-center space-x-1 hover:text-blue-500 cursor-pointer"
+          >
             <span role="img" aria-label="replies">💬</span>
-            <span>{post.replies.length}</span>
+            <span>{post.commentCount}</span>
           </button>
         </div>
       </div>

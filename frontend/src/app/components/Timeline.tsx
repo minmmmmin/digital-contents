@@ -6,6 +6,7 @@ import { Dispatch, SetStateAction } from 'react'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import type { Post } from '@/types/post'
+import CommentPanel from './CommentPanel'
 
 type FetchedPost = {
   post_id: number
@@ -16,6 +17,7 @@ type FetchedPost = {
   longitude: number | null
   created_at: string
   users: { name: string; avatar_url: string | null } | null
+  comments: { count: number }[] | null
 }
 
 type FavoriteRow = {
@@ -33,6 +35,7 @@ const Timeline = ({ view, setView, isPC }: TimelineProps) => {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [commentingPostId, setCommentingPostId] = useState<number | null>(null)
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -58,6 +61,7 @@ const Timeline = ({ view, setView, isPC }: TimelineProps) => {
             name,
             avatar_url
           )
+          comments(count)
         `)
         .order('created_at', { ascending: false })
 
@@ -116,10 +120,11 @@ const Timeline = ({ view, setView, isPC }: TimelineProps) => {
         location: undefined, // DBに location 文字列が無いので一旦なし（必要なら後で追加）
         imageUrl: row.image_url ?? undefined,
         body: row.caption ?? '',
-        likes: [],
+        likes: [] as string[],
         likeCount: likeCountMap.get(row.post_id) ?? 0,
         isLiked: likedSet.has(row.post_id),
-        replies: [], // PostCardで length を見るので必ず入れる
+        replies: [] as Post['replies'],
+        commentCount: row.comments?.[0]?.count ?? 0,
       }))
 
       setPosts(mappedPosts)
@@ -130,29 +135,42 @@ const Timeline = ({ view, setView, isPC }: TimelineProps) => {
   }, [])
 
   return (
-    <div className="relative bg-gray-100 h-full overflow-y-auto">
-      {view !== 'map' && !isPC && ( // !isPC を追加
-        <button
-          onClick={() => setView(view === 'split' ? 'timeline' : 'split')}
-          className="sticky top-4 right-4 bg-white/70 backdrop-blur-sm p-2 rounded-md shadow-lg hover:bg-white z-10 float-right mr-4 cursor-pointer"
-        >
-          <Image
-            src={view === 'split' ? '/fullscreen_icon.png' : '/fullscreen_close_icon.png'}
-            alt="Toggle Fullscreen"
-            width={24}
-            height={24}
-          />
-        </button>
-      )}
-      <div className="max-w-xl mx-auto bg-white border-x border-gray-200">
-        {loading && <div className="p-4 text-sm opacity-60">読み込み中…</div>}
-        {error && <div className="p-4 text-sm text-red-600">取得に失敗しました: {error}</div>}
+    <>
+      <div className="relative bg-gray-100 h-full overflow-y-auto">
+        {view !== 'map' && !isPC && (
+          <button
+            onClick={() => setView(view === 'split' ? 'timeline' : 'split')}
+            className="sticky top-4 right-4 bg-white/70 backdrop-blur-sm p-2 rounded-md shadow-lg hover:bg-white z-10 float-right mr-4 cursor-pointer"
+          >
+            <Image
+              src={view === 'split' ? '/fullscreen_icon.png' : '/fullscreen_close_icon.png'}
+              alt="Toggle Fullscreen"
+              width={24}
+              height={24}
+            />
+          </button>
+        )}
 
-        {!loading && !error && posts.map((post) => (
-          <PostCard key={post.post_id} post={post} />
-        ))}
+        <div className="max-w-xl mx-auto bg-white border-x border-gray-200">
+          {loading && <div className="p-4 text-sm opacity-60">読み込み中…</div>}
+          {error && <div className="p-4 text-sm text-red-600">取得に失敗しました: {error}</div>}
+
+          {!loading &&
+            !error &&
+            posts.map((post) => (
+              <PostCard
+                key={post.post_id}
+                post={post}
+                onCommentClick={(postId) => setCommentingPostId(postId)}
+              />
+            ))}
+        </div>
       </div>
-    </div>
+
+      {commentingPostId !== null && (
+        <CommentPanel postId={commentingPostId} onClose={() => setCommentingPostId(null)} />
+      )}
+    </>
   );
 };
 

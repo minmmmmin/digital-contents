@@ -17,6 +17,7 @@ export default function PostForm({ onClose }: PostFormProps) {
   const [file, setFile] = useState<File | null>(null);
   const [comment, setComment] = useState("");
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
 
   // 画像プレビュー表示のためのURL生成
   const previewUrl = useMemo(() => {
@@ -86,6 +87,59 @@ export default function PostForm({ onClose }: PostFormProps) {
     }
   };
 
+  const handleGetCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      alert("お使いのブラウザは位置情報取得に対応していません。");
+      return;
+    }
+
+    setIsGettingLocation(true);
+
+    const handleError = () => {
+      // Geolocation API 失敗時のフォールバック処理
+      const confirmFallback = window.confirm("現在地の自動取得に失敗しました。\nIPアドレスからおおよその位置を推定しますか？（精度は低くなります）");
+      if (confirmFallback) {
+        fetch('http://ip-api.com/json')
+          .then(res => {
+            if (!res.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return res.json();
+          })
+          .then(data => {
+            if (data.status === 'success' && data.lat && data.lon) {
+              setLocation({ lat: data.lat, lng: data.lon });
+            } else {
+              throw new Error('Failed to get location from IP address.');
+            }
+          })
+          .catch(err => {
+            console.error("IP Geolocation Error:", err);
+            alert("IPアドレスからの位置情報取得にも失敗しました。");
+          })
+          .finally(() => {
+            setIsGettingLocation(false);
+          });
+      } else {
+        setIsGettingLocation(false);
+      }
+    };
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setLocation({ lat: latitude, lng: longitude });
+        setIsGettingLocation(false);
+      },
+      handleError, // エラーハンドラを共通化
+      {
+        enableHighAccuracy: false,
+        timeout: 5000, // タイムアウトを5秒に戻す（失敗すればフォールバックするため）
+        maximumAge: 0,
+      }
+    );
+  };
+
 
   return (
     <div className="flex flex-col h-full bg-white rounded-lg">
@@ -126,7 +180,17 @@ export default function PostForm({ onClose }: PostFormProps) {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-lg font-semibold mb-3">位置情報の追加</h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold">位置情報の追加</h2>
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={handleGetCurrentLocation}
+              disabled={isGettingLocation}
+            >
+              {isGettingLocation ? "取得中..." : "現在地から設定"}
+            </button>
+          </div>
           <div className="w-full h-64 md:h-80 rounded-md overflow-hidden border">
             <SelectableMap
               value={location}

@@ -18,6 +18,7 @@ const PostCard = ({ post, onCommentClick, onMoveMap }: PostCardProps) => {
   const [isLiked, setIsLiked] = useState(post.isLiked)
   const [likeCount, setLikeCount] = useState(post.likeCount)
   const [pending, setPending] = useState(false)
+  const [isImageOpen, setIsImageOpen] = useState(false)
 
   const handleLikeClick = async () => {
     if (pending) return
@@ -112,7 +113,10 @@ const PostCard = ({ post, onCommentClick, onMoveMap }: PostCardProps) => {
 
         {/* Post Image */}
         {post.image_url && (
-          <div className="mt-3 rounded-2xl overflow-hidden">
+          <div
+            className="mt-3 rounded-2xl overflow-hidden cursor-pointer hover:opacity-90"
+            onClick={() => setIsImageOpen(true)}
+          >
             <Image
               src={post.image_url}
               alt="猫の画像"
@@ -150,6 +154,36 @@ const PostCard = ({ post, onCommentClick, onMoveMap }: PostCardProps) => {
           </button>
         </div>
       </div>
+
+      {/* 画像を拡大表示するモーダル */}
+      {isImageOpen && post.image_url && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+          {/* 背景クリックで閉じる */}
+          <div
+            className="absolute inset-0"
+            onClick={() => setIsImageOpen(false)}
+          />
+
+          <div className="relative max-h-[90vh] max-w-3xl mx-4">
+            <Image
+              src={post.image_url}
+              alt="拡大画像"
+              width={1200}
+              height={800}
+              className="max-h-[90vh] w-auto max-w-full rounded-lg object-contain"
+            />
+
+            {/* 閉じるボタン */}
+            <button
+              type="button"
+              className="btn btn-sm btn-circle absolute top-2 right-2 bg-black/60 border-none text-white hover:bg-black/80"
+              onClick={() => setIsImageOpen(false)}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

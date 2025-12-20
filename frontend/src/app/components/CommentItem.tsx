@@ -4,6 +4,7 @@ import Image from 'next/image'
 import type { User } from '@supabase/supabase-js'
 import type { Comment } from '@/types/comment'
 import { formatPostDate } from '@/lib/dateUtils'
+import ActionButtons from './ActionButtons'
 
 interface CommentItemProps {
   comment: Comment
@@ -46,24 +47,12 @@ const CommentItem = ({ comment, user, toggleReaction, style }: CommentItemProps)
 
         <div className="mt-1 text-sm whitespace-pre-wrap break-words leading-relaxed">{comment.content}</div>
 
-        <div className="mt-2 flex items-center gap-1">
-          <button
-            type="button"
-            className={[
-              'btn btn-ghost btn-sm btn-circle',
-              comment.isLiked ? 'text-primary' : 'text-base-content/60',
-            ].join(' ')}
-            aria-label={comment.isLiked ? 'いいねを取り消す' : 'いいねする'}
-            onClick={() => toggleReaction(comment.comment_id, comment.isLiked)}
-            disabled={!user}
-          >
-            <span className={['text-lg leading-none', comment.isLiked ? 'animate-[reactionPop_180ms_ease-out]' : ''].join(' ')} aria-hidden>
-              👍
-            </span>
-          </button>
-          {comment.likeCount > 0 && (
-            <span className="text-xs text-base-content/60">{comment.likeCount}</span>
-          )}
+        <div className="mt-1 -ml-2">
+          <ActionButtons
+            isCommentLiked={comment.isLiked}
+            commentLikeCount={comment.likeCount}
+            onCommentLike={user ? () => toggleReaction(comment.comment_id, comment.isLiked) : undefined}
+          />
         </div>
       </div>
     </div>

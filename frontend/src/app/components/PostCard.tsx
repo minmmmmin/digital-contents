@@ -6,6 +6,10 @@ import { formatPostDate } from '@/lib/dateUtils'
 import { createClient } from '@/lib/supabase/client'
 import type { Post } from '@/types/post'
 
+import { MapPinIcon } from '@heroicons/react/24/outline'
+
+import ActionButtons from './ActionButtons'
+
 const supabase = createClient()
 
 interface PostCardProps {
@@ -93,15 +97,15 @@ const PostCard = ({ post, onCommentClick, onMoveMap }: PostCardProps) => {
 
           {post.location && <span className="text-xs text-gray-500">{post.location}</span>}
 
-          {/* 地図移動ボタン（仮） */}
+          {/* 地図移動ボタン */}
           {post.latitude && post.longitude && (
             <button
               type="button"
-              className="btn btn-xs btn-outline gap-1 text-gray-700"
+              className="btn btn-xs btn-outline gap-1 text-gray-700 cursor-pointer"
               title="地図で場所を見る"
               onClick={() => onMoveMap(post.latitude!, post.longitude!)}
             >
-              <span aria-hidden>📍</span>
+              <MapPinIcon className="w-4 h-4" aria-hidden="true" />
               地図で見る
             </button>
           )}
@@ -124,30 +128,14 @@ const PostCard = ({ post, onCommentClick, onMoveMap }: PostCardProps) => {
         )}
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-start space-x-8 mt-3 text-gray-500">
-          <button
-            type="button"
-            onClick={handleLikeClick}
-            disabled={pending}
-            className={`flex items-center space-x-1 cursor-pointer ${isLiked ? 'text-pink-500' : 'hover:text-pink-500'
-              } ${pending ? 'opacity-60 cursor-not-allowed' : ''}`}
-          >
-            <span role="img" aria-label="likes">
-              ❤️
-            </span>
-            <span>{likeCount}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onCommentClick(post.post_id)}
-            className="flex items-center space-x-1 hover:text-blue-500 cursor-pointer"
-          >
-            <span role="img" aria-label="replies">
-              💬
-            </span>
-            <span>{post.commentCount}</span>
-          </button>
+        <div className="mt-3">
+          <ActionButtons
+            isLiked={isLiked}
+            likeCount={likeCount}
+            onLike={handleLikeClick}
+            commentCount={post.commentCount}
+            onOpenComments={() => onCommentClick(post.post_id)}
+          />
         </div>
       </div>
     </div>

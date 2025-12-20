@@ -16,12 +16,14 @@ interface PostCardProps {
   post: Post
   onCommentClick: (postId: number) => void
   onMoveMap: (lat: number, lng: number) => void
+  onImageClick: (imageUrl: string) => void
 }
 
-const PostCard = ({ post, onCommentClick, onMoveMap }: PostCardProps) => {
+const PostCard = ({ post, onCommentClick, onMoveMap, onImageClick }: PostCardProps) => {
   const [isLiked, setIsLiked] = useState(post.isLiked)
   const [likeCount, setLikeCount] = useState(post.likeCount)
   const [pending, setPending] = useState(false)
+  const [isImageOpen, setIsImageOpen] = useState(false)
 
   const handleLikeClick = async () => {
     if (pending) return
@@ -116,7 +118,10 @@ const PostCard = ({ post, onCommentClick, onMoveMap }: PostCardProps) => {
 
         {/* Post Image */}
         {post.image_url && (
-          <div className="mt-3 rounded-2xl overflow-hidden">
+          <div
+            className="mt-3 rounded-2xl overflow-hidden cursor-pointer hover:opacity-90"
+            onClick={() => onImageClick(post.image_url!)}
+          >
             <Image
               src={post.image_url}
               alt="猫の画像"

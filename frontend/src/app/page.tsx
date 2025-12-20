@@ -7,6 +7,7 @@ import Timeline from "./components/Timeline";
 import { LayoutContext } from "@/lib/contexts/LayoutContext";
 import type { Post } from "@/types/post";
 import PostCard from "./components/PostCard";
+import FullscreenImageModal from "./components/FullScreenImageModal";
 
 export default function Home() {
   const [view, setView] = useState<"split" | "map" | "timeline">("split");
@@ -25,6 +26,8 @@ export default function Home() {
     lat: 35.662186020148546,
     lng: 139.63409803900635,
   })
+
+  const [fullscreenImageUrl, setFullscreenImageUrl] = useState<string | null>(null)
 
   useEffect(() => {
     if (searchParams.get("login") === "success") {
@@ -47,6 +50,10 @@ export default function Home() {
     setSelectedPost(post);
   };
 
+  const handleImageClick = (imageUrl: string) => {
+    setFullscreenImageUrl(imageUrl)
+  }
+
   return (
     <>
       {isPC ? (
@@ -54,9 +61,10 @@ export default function Home() {
           <div className="w-128 h-full flex flex-col border-r border-gray-200">
             <TabsBar />
             <div className="flex-1 overflow-y-auto">
-              <Timeline view="timeline" setView={setView} isPC={isPC} onMoveMap={(lat, lng) => {
-                setMapCenter({ lat, lng })
-              }} />
+              <Timeline view="timeline" setView={setView} isPC={isPC}
+                onMoveMap={(lat, lng) => { setMapCenter({ lat, lng }) }}
+                onImageClick={handleImageClick}
+              />
             </div>
           </div>
           <div className="flex-1 h-full">
@@ -84,9 +92,10 @@ export default function Home() {
                 : "h-0"
             }`}
           >
-              <Timeline view={view} setView={setView} isPC={isPC} onMoveMap={(lat, lng) => {
-                setMapCenter({ lat, lng })
-              }} />
+              <Timeline view={view} setView={setView} isPC={isPC}
+                onMoveMap={(lat, lng) => { setMapCenter({ lat, lng }) }}
+                onImageClick={handleImageClick}
+              />
           </div>
         </div>
       )}
@@ -135,9 +144,11 @@ export default function Home() {
       {selectedPost && (
         <dialog id="post_details_modal" className="modal modal-open">
           <div className="modal-box">
-            <PostCard post={selectedPost} onMoveMap={(lat, lng) => {
-              setMapCenter({ lat, lng })
-            }} onCommentClick={() => setSelectedPost(null)} />
+            <PostCard post={selectedPost}
+              onMoveMap={(lat, lng) => { setMapCenter({ lat, lng }) }}
+              onCommentClick={() => setSelectedPost(null)}
+              onImageClick={handleImageClick}
+            />
             <div className="modal-action">
               <button className="btn" onClick={() => setSelectedPost(null)}>
                 閉じる
@@ -146,6 +157,15 @@ export default function Home() {
           </div>
         </dialog>
       )}
+
+      {/*画像拡大表示のモーダル*/}
+      {fullscreenImageUrl && (
+        <FullscreenImageModal
+          imageUrl={fullscreenImageUrl}
+          onClose={() => setFullscreenImageUrl(null)}
+        />
+      )}
+
     </>
   );
 }

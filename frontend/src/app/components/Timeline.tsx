@@ -30,9 +30,10 @@ interface TimelineProps {
   setView: Dispatch<SetStateAction<'split' | 'map' | 'timeline'>>
   isPC?: boolean
   onMoveMap: (lat: number, lng: number) => void
+  onImageClick: (imageUrl: string) => void
 }
 
-const Timeline = ({ view, setView, isPC, onMoveMap }: TimelineProps) => {
+const Timeline = ({ view, setView, isPC, onMoveMap, onImageClick }: TimelineProps) => {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -191,6 +192,7 @@ const Timeline = ({ view, setView, isPC, onMoveMap }: TimelineProps) => {
                 post={post}
                 onMoveMap={onMoveMap}
                 onCommentClick={(postId) => setCommentingPostId(postId)}
+                onImageClick={onImageClick}
               />
             ))}
         </div>

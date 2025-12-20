@@ -31,7 +31,7 @@ export default function FullscreenImageModal({ imageUrl, onClose }: Props) {
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80"
+          className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 cursor-pointer"
           aria-label="閉じる"
         >
           ✕

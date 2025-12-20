@@ -18,6 +18,24 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "ねこあるき",
   description: "地域の猫スポットを共有しよう",
+  openGraph: {
+    title: "ねこあるき",
+    description: "地域の猫スポットを共有しよう",
+    images: [
+      {
+        url: "/ogp.png",
+        width: 1200,
+        height: 1200,
+        alt: "ねこあるき",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: "ねこあるき",
+    description: "地域の猫スポットを共有しよう",
+    images: ["/ogp.png"],
+  },
 };
 
 export default async function RootLayout({

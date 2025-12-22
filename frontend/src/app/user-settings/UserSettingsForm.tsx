@@ -7,6 +7,7 @@ import Image from 'next/image'
 import ReactCrop, { type Crop, centerCrop, makeAspectCrop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 import { createClient } from '@/lib/supabase/client'
+import { updateUserAvatar, updateUserName } from './actions'
 
 // #region Helper functions
 function centerAspectCrop(mediaWidth: number, mediaHeight: number, aspect: number) {
@@ -73,7 +74,6 @@ type Profile = {
 type Props = {
   user: User | null
   profile: Profile | null
-  updateAction: (formData: FormData) => Promise<{ success: boolean; message: string }>
 }
 
 const initialState = {
@@ -85,12 +85,12 @@ function SubmitButton() {
   const { pending } = useFormStatus()
   return (
     <button type="submit" className="btn btn-primary w-full" disabled={pending}>
-      {pending ? '更新中...' : 'プロフィールを更新'}
+      {pending ? 'ユーザー名を更新中...' : 'ユーザー名を更新'}
     </button>
   )
 }
 
-export default function UserSettingsForm({ user, profile, updateAction }: Props) {
+export default function UserSettingsForm({ user, profile }: Props) {
   const [responseState, setResponseState] = useState(initialState)
   const [showResultModal, setShowResultModal] = useState(false)
   const supabase = createClient()
@@ -100,9 +100,9 @@ export default function UserSettingsForm({ user, profile, updateAction }: Props)
   const [crop, setCrop] = useState<Crop>()
   const [completedCrop, setCompletedCrop] = useState<Crop>()
   const [aspect] = useState<number | undefined>(1)
-  const [croppedImageFile, setCroppedImageFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState(profile?.avatar_url || '')
   const [isTrimmingModalOpen, setTrimmingModalOpen] = useState(false)
+  const [isAvatarUpdating, setAvatarUpdating] = useState(false)
 
   const imgRef = useRef<HTMLImageElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -110,17 +110,14 @@ export default function UserSettingsForm({ user, profile, updateAction }: Props)
   useEffect(() => {
     if (responseState.message) {
       setShowResultModal(true)
-      if (responseState.success) {
-        // 成功した場合、新しいアバターURLをプレビューに反映（ページリロードがベストだが、一旦仮対応）
-        // actions.tsから返される新しいURLを使うのが理想
-      }
     }
   }, [responseState])
 
   const handleCloseResultModal = () => {
     setShowResultModal(false)
+    // 成功時はリロードして、ヘッダーなどのUI全体を最新の状態に保つ
     if (responseState.success) {
-      window.location.reload() // 成功時はリロードして全体を更新
+      window.location.reload()
     }
   }
 
@@ -150,30 +147,32 @@ export default function UserSettingsForm({ user, profile, updateAction }: Props)
     const canvas = document.createElement('canvas')
     await canvasPreview(image, canvas, completedCrop)
 
-    canvas.toBlob(
-      (blob) => {
-        if (!blob) {
-          throw new Error('Failed to create blob')
-        }
-        const file = new File([blob], 'avatar.webp', { type: 'image/webp' })
-        setCroppedImageFile(file)
-        setPreviewUrl(URL.createObjectURL(file))
-      },
-      'image/webp',
-      0.9,
-    )
-    setTrimmingModalOpen(false)
+    canvas.toBlob(async (blob) => {
+      if (!blob) {
+        throw new Error('Failed to create blob')
+      }
+      const file = new File([blob], 'avatar.webp', { type: 'image/webp' })
+
+      setTrimmingModalOpen(false)
+      setAvatarUpdating(true)
+      setPreviewUrl(URL.createObjectURL(file)) // Optimistic UI update
+
+      const formData = new FormData()
+      formData.append('avatar', file)
+
+      const result = await updateUserAvatar(formData)
+      setResponseState(result)
+
+      // 失敗した場合は、プレビューを元のURLに戻す
+      if (!result.success) {
+        setPreviewUrl(profile?.avatar_url || '')
+      }
+      setAvatarUpdating(false)
+    }, 'image/webp', 0.9)
   }
 
-  const handleSubmit = async (formData: FormData) => {
-    const name = formData.get('name') as string
-    const newFormData = new FormData()
-    newFormData.append('name', name)
-    if (croppedImageFile) {
-      newFormData.append('avatar', croppedImageFile)
-    }
-
-    const result = await updateAction(newFormData)
+  const handleNameSubmit = async (formData: FormData) => {
+    const result = await updateUserName(formData)
     setResponseState(result)
   }
 
@@ -184,9 +183,14 @@ export default function UserSettingsForm({ user, profile, updateAction }: Props)
 
   return (
     <>
-      <form action={handleSubmit} className="space-y-6 max-w-md mx-auto">
+      <div className="space-y-6 max-w-md mx-auto">
         <div className="flex flex-col items-center space-y-4">
-          <div className="avatar">
+          <div className="avatar relative">
+            {isAvatarUpdating && (
+              <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 rounded-full z-10">
+                <span className="loading loading-spinner loading-lg"></span>
+              </div>
+            )}
             <div className="w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
               <Image
                 src={previewUrl || '/images/dummycat.png'}
@@ -194,6 +198,7 @@ export default function UserSettingsForm({ user, profile, updateAction }: Props)
                 width={96}
                 height={96}
                 className="object-cover"
+                key={previewUrl} // URLが変わった時にImageコンポーネントを再マウントさせる
               />
             </div>
           </div>
@@ -203,43 +208,47 @@ export default function UserSettingsForm({ user, profile, updateAction }: Props)
             onChange={onSelectFile}
             style={{ display: 'none' }}
             accept="image/*"
+            disabled={isAvatarUpdating}
           />
           <button
             type="button"
             className="btn btn-sm btn-outline"
             onClick={() => fileInputRef.current?.click()}
+            disabled={isAvatarUpdating}
           >
             画像を変更
           </button>
         </div>
 
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-            メールアドレス
-          </label>
-          <input
-            type="email"
-            id="email"
-            value={user?.email || ''}
-            disabled
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed"
-          />
-        </div>
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-            ユーザー名
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            defaultValue={profile?.name || ''}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            placeholder="ねこマスター"
-          />
-        </div>
-        <SubmitButton />
-      </form>
+        <form action={handleNameSubmit}>
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              メールアドレス
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={user?.email || ''}
+              disabled
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed"
+            />
+          </div>
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              ユーザー名
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              defaultValue={profile?.name || ''}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              placeholder="ねこマスター"
+            />
+          </div>
+          <SubmitButton />
+        </form>
+      </div>
 
       <div className="mt-8 text-center">
         <button className="btn btn-error" onClick={handleLogout}>

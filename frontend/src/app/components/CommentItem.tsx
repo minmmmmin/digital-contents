@@ -1,19 +1,41 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
 import type { User } from '@supabase/supabase-js'
 import type { Comment } from '@/types/comment'
 import { formatPostDate } from '@/lib/dateUtils'
 import ActionButtons from './ActionButtons'
+import { TrashIcon } from '@heroicons/react/24/outline'
 
 interface CommentItemProps {
   comment: Comment
   user: User | null
   toggleReaction: (commentId: number, wasLiked: boolean) => void
+  deleteComment: (commentId: number) => Promise<void>
   style: React.CSSProperties
 }
 
-const CommentItem = ({ comment, user, toggleReaction, style }: CommentItemProps) => {
+const CommentItem = ({
+  comment,
+  user,
+  toggleReaction,
+  deleteComment,
+  style,
+}: CommentItemProps) => {
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  const isOwnComment = user?.id === comment.user_id
+
+  const handleDelete = async () => {
+    if (!isOwnComment || isDeleting) return
+    if (window.confirm('このコメントを本当に削除しますか？')) {
+      setIsDeleting(true)
+      await deleteComment(comment.comment_id)
+      // 削除処理が完了しても isDeleting はそのままでOK（コンポーネントが消えるため）
+    }
+  }
+
   return (
     <div
       className={['flex gap-3', 'animate-[commentIn_220ms_ease-out_both]'].join(' ')}
@@ -40,12 +62,26 @@ const CommentItem = ({ comment, user, toggleReaction, style }: CommentItemProps)
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <div className="text-sm truncate">{comment.users?.name ?? '名無しさん'}</div>
-              <div className="text-xs text-base-content/60">{formatPostDate(comment.created_at)}</div>
+              <div className="text-xs text-base-content/60">
+                {formatPostDate(comment.created_at)}
+              </div>
             </div>
           </div>
+          {isOwnComment && (
+            <button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="text-base-content/50 hover:text-error disabled:opacity-50 shrink-0 cursor-pointer"
+              title="コメントを削除"
+            >
+              <TrashIcon className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
-        <div className="mt-1 text-sm whitespace-pre-wrap break-words leading-relaxed">{comment.content}</div>
+        <div className="mt-1 text-sm whitespace-pre-wrap break-words leading-relaxed">
+          {comment.content}
+        </div>
 
         <div className="mt-1 -ml-2">
           <ActionButtons

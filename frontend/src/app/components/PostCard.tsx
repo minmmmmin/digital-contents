@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useContext } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { formatPostDate } from '@/lib/dateUtils'
 import { createClient } from '@/lib/supabase/client'
 import type { Post } from '@/types/post'
-import type { User } from '@supabase/supabase-js'
+import { LayoutContext } from '@/lib/contexts/LayoutContext'
 
 import { MapPinIcon, TrashIcon } from '@heroicons/react/24/outline'
 
@@ -24,24 +24,24 @@ interface PostCardProps {
 
 const PostCard = ({ post, onCommentClick, onMoveMap, onImageClick, onDelete }: PostCardProps) => {
   const router = useRouter()
-  const [user, setUser] = useState<User | null>(null)
+  const layoutContext = useContext(LayoutContext)
+  if (!layoutContext) {
+    throw new Error('LayoutContext must be used within a LayoutProvider')
+  }
+  const { user, setIsLoginPromptOpen } = layoutContext
+
   const [isLiked, setIsLiked] = useState(post.isLiked)
   const [likeCount, setLikeCount] = useState(post.likeCount)
   const [pending, setPending] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      setUser(user)
-    }
-    fetchUser()
-  }, [])
-
   const handleLikeClick = async () => {
-    if (pending || !user) return
+    if (pending) return
+    if (!user) {
+      setIsLoginPromptOpen(true)
+      return
+    }
+
     setPending(true)
 
     const nextLiked = !isLiked

@@ -20,7 +20,7 @@ export default function Home() {
   if (!layoutContext) {
     throw new Error("LayoutContext must be used within a LayoutProvider");
   }
-  const { isPC, setIsPostModalOpen } = layoutContext;
+  const { isPC, setIsPostModalOpen, user, setIsLoginPromptOpen } = layoutContext;
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [commentingPostId, setCommentingPostId] = useState<number | null>(null);
 
@@ -41,6 +41,10 @@ export default function Home() {
   }, [searchParams, router]);
 
   const handlePostButtonClick = () => {
+    if (!user) {
+      setIsLoginPromptOpen(true);
+      return;
+    }
     if (isPC) {
       setIsPostModalOpen(true);
     } else {

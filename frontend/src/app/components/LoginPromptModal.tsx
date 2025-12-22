@@ -28,7 +28,7 @@ export default function LoginPromptModal({ isOpen, onClose }: Props) {
           <button className="btn" onClick={onClose}>
             閉じる
           </button>
-          <button className="btn btn-accent" onClick={handleLogin}>
+          <button className="btn btn-secondary" onClick={handleLogin}>
             ログイン
           </button>
         </div>

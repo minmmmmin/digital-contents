@@ -42,6 +42,10 @@ const Timeline = ({ view, setView, isPC, onMoveMap, onImageClick }: TimelineProp
   const searchParams = useSearchParams()
   const filter = searchParams.get('filter')
 
+  const handleDeletePost = (postId: number) => {
+    setPosts((currentPosts) => currentPosts.filter((p) => p.post_id !== postId))
+  }
+
   useEffect(() => {
     const fetchPosts = async () => {
       setLoading(true)
@@ -193,6 +197,7 @@ const Timeline = ({ view, setView, isPC, onMoveMap, onImageClick }: TimelineProp
                 onMoveMap={onMoveMap}
                 onCommentClick={(postId) => setCommentingPostId(postId)}
                 onImageClick={onImageClick}
+                onDelete={handleDeletePost}
               />
             ))}
         </div>

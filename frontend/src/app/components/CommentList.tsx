@@ -10,9 +10,17 @@ interface CommentListProps {
   comments: Comment[]
   user: User | null
   toggleReaction: (commentId: number, wasLiked: boolean) => void
+  deleteComment: (commentId: number) => Promise<void>
 }
 
-const CommentList = ({ loading, error, comments, user, toggleReaction }: CommentListProps) => {
+const CommentList = ({
+  loading,
+  error,
+  comments,
+  user,
+  toggleReaction,
+  deleteComment,
+}: CommentListProps) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-10">
@@ -43,6 +51,7 @@ const CommentList = ({ loading, error, comments, user, toggleReaction }: Comment
           comment={comment}
           user={user}
           toggleReaction={toggleReaction}
+          deleteComment={deleteComment}
           style={{ animationDelay: `${Math.min(idx * 18, 180)}ms` }}
         />
       ))}

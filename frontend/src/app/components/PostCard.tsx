@@ -1,12 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { formatPostDate } from '@/lib/dateUtils'
 import { createClient } from '@/lib/supabase/client'
 import type { Post } from '@/types/post'
+import type { User } from '@supabase/supabase-js'
 
-import { MapPinIcon } from '@heroicons/react/24/outline'
+import { MapPinIcon, TrashIcon } from '@heroicons/react/24/outline'
 
 import ActionButtons from './ActionButtons'
 
@@ -17,43 +19,43 @@ interface PostCardProps {
   onCommentClick: (postId: number) => void
   onMoveMap: (lat: number, lng: number) => void
   onImageClick: (imageUrl: string) => void
+  onDelete?: (postId: number) => void
 }
 
-const PostCard = ({ post, onCommentClick, onMoveMap, onImageClick }: PostCardProps) => {
+const PostCard = ({ post, onCommentClick, onMoveMap, onImageClick, onDelete }: PostCardProps) => {
+  const router = useRouter()
+  const [user, setUser] = useState<User | null>(null)
   const [isLiked, setIsLiked] = useState(post.isLiked)
   const [likeCount, setLikeCount] = useState(post.likeCount)
   const [pending, setPending] = useState(false)
-  const [isImageOpen, setIsImageOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      setUser(user)
+    }
+    fetchUser()
+  }, [])
 
   const handleLikeClick = async () => {
-    if (pending) return
+    if (pending || !user) return
     setPending(true)
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      setPending(false)
-      return
-    }
-
     const nextLiked = !isLiked
-
-    // 楽観更新（即UI反映）
     setIsLiked(nextLiked)
     setLikeCount((prev) => prev + (nextLiked ? 1 : -1))
 
     try {
       if (nextLiked) {
-        // いいね追加
         const { error } = await supabase.from('favorites').insert({
           post_id: post.post_id,
           user_id: user.id,
         })
         if (error) throw error
       } else {
-        // いいね解除
         const { error } = await supabase
           .from('favorites')
           .delete()
@@ -62,7 +64,6 @@ const PostCard = ({ post, onCommentClick, onMoveMap, onImageClick }: PostCardPro
         if (error) throw error
       }
     } catch (e) {
-      // 失敗したら巻き戻す
       setIsLiked(!nextLiked)
       setLikeCount((prev) => prev - (nextLiked ? 1 : -1))
       console.error(e)
@@ -71,11 +72,57 @@ const PostCard = ({ post, onCommentClick, onMoveMap, onImageClick }: PostCardPro
     }
   }
 
+  const handleDelete = async () => {
+    if (!user || user.id !== post.user_id || isDeleting) return
+
+    if (window.confirm('この投稿を本当に削除しますか？')) {
+      setIsDeleting(true)
+      try {
+        const response = await fetch(`/api/posts/${post.post_id}`, {
+          method: 'DELETE',
+        })
+
+        if (!response.ok) {
+          // APIから返されたエラーメッセージを取得
+          const errorData = await response.json().catch(() => ({})) // JSONパース失敗時は空オブジェクト
+          throw new Error(errorData.error || `サーバーエラー: ${response.status}`)
+        }
+
+        // 成功時、親コンポーネントのコールバックを呼ぶか、ページを再更新する
+        if (onDelete) {
+          onDelete(post.post_id)
+        } else {
+          router.refresh()
+        }
+      } catch (e) {
+        const errorMessage = e instanceof Error ? e.message : '不明なエラーが発生しました。'
+        console.error('削除に失敗しました:', errorMessage)
+        alert(`投稿の削除に失敗しました: ${errorMessage}`)
+      } finally {
+        setIsDeleting(false)
+      }
+    }
+  }
+
+  const isOwnPost = user?.id === post.user_id
+
   return (
     <div className="relative flex space-x-3 p-4 border-b border-gray-200">
-      {/* Created At */}
-      <div className="absolute top-4 right-4 text-xs text-gray-400">
-        {post.created_at && formatPostDate(post.created_at)}
+      {/* Created At & Delete Button */}
+      <div className="absolute top-4 right-4 flex items-center space-x-3">
+        <span className="text-xs text-gray-400">
+          {post.created_at && formatPostDate(post.created_at)}
+        </span>
+        {isOwnPost && (
+          <button
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="text-gray-400 hover:text-red-500 disabled:opacity-50 cursor-pointer"
+            title="投稿を削除"
+          >
+            <TrashIcon className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
       {/* Avatar */}

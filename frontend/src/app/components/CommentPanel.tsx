@@ -23,6 +23,7 @@ const CommentPanel = ({ postId, onClose }: CommentPanelProps) => {
     visibleComments,
     fetchComments,
     toggleReaction,
+    deleteComment,
   } = useComments(postId)
 
   const [mounted, setMounted] = useState(true)
@@ -93,6 +94,7 @@ const CommentPanel = ({ postId, onClose }: CommentPanelProps) => {
               comments={visibleComments}
               user={user}
               toggleReaction={toggleReaction}
+              deleteComment={deleteComment}
             />
           </div>
 

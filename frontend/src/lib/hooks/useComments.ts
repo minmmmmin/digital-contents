@@ -198,6 +198,29 @@ export const useComments = (postId: number) => {
     [supabase, user]
   );
 
+  const deleteComment = useCallback(
+    async (commentId: number) => {
+      if (!user) return;
+
+      const originalComments = comments;
+      setComments((prev) => prev.filter((c) => c.comment_id !== commentId));
+
+      try {
+        const { error } = await supabase
+          .from("comments")
+          .delete()
+          .eq("comment_id", commentId);
+
+        if (error) throw error;
+      } catch (e) {
+        console.error("コメントの削除に失敗しました:", e);
+        setComments(originalComments);
+        alert("コメントの削除に失敗しました。");
+      }
+    },
+    [supabase, user, comments]
+  );
+
   return {
     comments,
     loading,
@@ -208,5 +231,6 @@ export const useComments = (postId: number) => {
     visibleComments,
     fetchComments,
     toggleReaction,
+    deleteComment,
   };
 };

@@ -1,13 +1,14 @@
 "use client";
 import { useState, useEffect, useContext } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Map from "./components/Map";
+import NekoMap from "./components/Map";
 import TabsBar from "./components/TabsBar";
 import Timeline from "./components/Timeline";
 import { LayoutContext } from "@/lib/contexts/LayoutContext";
 import type { Post } from "@/types/post";
 import PostCard from "./components/PostCard";
 import FullscreenImageModal from "./components/FullScreenImageModal";
+import CommentPanel from "./components/CommentPanel";
 
 export default function Home() {
   const [view, setView] = useState<"split" | "map" | "timeline">("split");
@@ -21,6 +22,7 @@ export default function Home() {
   }
   const { isPC, setIsPostModalOpen } = layoutContext;
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [commentingPostId, setCommentingPostId] = useState<number | null>(null);
 
   const [mapCenter, setMapCenter] = useState({
     lat: 35.662186020148546,
@@ -54,6 +56,11 @@ export default function Home() {
     setFullscreenImageUrl(imageUrl)
   }
 
+  const handleCommentClick = (postId: number) => {
+    setSelectedPost(null); // 投稿詳細モーダルを閉じる
+    setCommentingPostId(postId); // コメントパネルを開く
+  };
+
   return (
     <>
       {isPC ? (
@@ -68,7 +75,7 @@ export default function Home() {
             </div>
           </div>
           <div className="flex-1 h-full">
-            <Map view="map" setView={setView} onPinClick={handlePinClick} center={mapCenter} />
+            <NekoMap view="map" setView={setView} onPinClick={handlePinClick} center={mapCenter} />
           </div>
         </>
       ) : (
@@ -78,7 +85,7 @@ export default function Home() {
               view === "split" ? "h-1/2" : view === "map" ? "flex-1" : "h-0"
             }`}
           >
-              <Map view={view} setView={setView} onPinClick={handlePinClick} center={mapCenter} />
+              <NekoMap view={view} setView={setView} onPinClick={handlePinClick} center={mapCenter} />
           </div>
           <div className={`${view === "map" ? "hidden" : ""}`}>
             <TabsBar />
@@ -146,7 +153,7 @@ export default function Home() {
           <div className="modal-box">
             <PostCard post={selectedPost}
               onMoveMap={(lat, lng) => { setMapCenter({ lat, lng }) }}
-              onCommentClick={() => setSelectedPost(null)}
+              onCommentClick={handleCommentClick}
               onImageClick={handleImageClick}
             />
             <div className="modal-action">
@@ -156,6 +163,11 @@ export default function Home() {
             </div>
           </div>
         </dialog>
+      )}
+
+      {/* コメントパネル */}
+      {commentingPostId !== null && (
+        <CommentPanel postId={commentingPostId} onClose={() => setCommentingPostId(null)} />
       )}
 
       {/*画像拡大表示のモーダル*/}
@@ -169,4 +181,3 @@ export default function Home() {
     </>
   );
 }
-

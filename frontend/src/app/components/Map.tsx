@@ -21,7 +21,14 @@ type FetchedPost = {
   longitude: number | null;
   created_at: string;
   users: { name: string; avatar_url: string | null } | null;
+  comments: { count: number }[] | null;
 };
+
+type FavoriteRow = {
+  post_id: number;
+  user_id: string;
+};
+
 
 function MapInner({ center }: { center?: { lat: number; lng: number } | null }) {
   const map = useMap();
@@ -34,12 +41,16 @@ function MapInner({ center }: { center?: { lat: number; lng: number } | null }) 
   return null;
 }
 
-export default function Map({ view, setView, onPinClick, center }: MapProps) {
+export default function NekoMap({ view, setView, onPinClick, center }: MapProps) {
   const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     const supabase = createClient();
     const fetchPosts = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       const { data, error } = await supabase
         .from("posts")
         .select(`
@@ -53,7 +64,8 @@ export default function Map({ view, setView, onPinClick, center }: MapProps) {
           users!posts_user_id_fkey (
             name,
             avatar_url
-          )
+          ),
+          comments!post_id(count)
         `)
         .not("latitude", "is", null)
         .not("longitude", "is", null);
@@ -61,24 +73,51 @@ export default function Map({ view, setView, onPinClick, center }: MapProps) {
       if (error) {
         console.error("Error fetching posts:", error);
         setPosts([]);
-      } else {
-        const mappedPosts: Post[] = (data as unknown as FetchedPost[] ?? []).map((row) => ({
-          post_id: row.post_id,
-          user_id: row.user_id,
-          created_at: row.created_at,
-          latitude: row.latitude,
-          longitude: row.longitude,
-          image_url: row.image_url,
-          caption: row.caption,
-          username: row.users?.name ?? 'unknown',
-          location: undefined,
-          likeCount: 0,
-          isLiked: false,
-          commentCount: 0,
-          replies: [],
-        }));
-        setPosts(mappedPosts);
+        return;
       }
+      
+      const rows = (data as unknown as FetchedPost[] | null) ?? []
+      if (rows.length === 0) {
+        setPosts([])
+        return;
+      }
+
+      const postIds = rows.map((r) => r.post_id);
+      const { data: favData, error: favError } = await supabase
+        .from('favorites')
+        .select('post_id, user_id')
+        .in('post_id', postIds)
+
+      if (favError) {
+        console.error('Error fetching favorites:', favError)
+      }
+      
+      const favs = (favData as FavoriteRow[] | null) ?? []
+      const likeCountMap = new Map<number, number>()
+      const likedSet = new Set<number>()
+
+      for (const f of favs) {
+        likeCountMap.set(f.post_id, (likeCountMap.get(f.post_id) ?? 0) + 1)
+        if (user && f.user_id === user.id) likedSet.add(f.post_id)
+      }
+
+      const mappedPosts: Post[] = rows.map((row) => ({
+        post_id: row.post_id,
+        user_id: row.user_id,
+        created_at: row.created_at,
+        latitude: row.latitude,
+        longitude: row.longitude,
+        image_url: row.image_url,
+        caption: row.caption,
+        username: row.users?.name ?? 'unknown',
+        avatar_url: row.users?.avatar_url ?? undefined,
+        location: undefined,
+        likeCount: likeCountMap.get(row.post_id) ?? 0,
+        isLiked: likedSet.has(row.post_id),
+        commentCount: row.comments?.[0]?.count ?? 0,
+        replies: [],
+      }));
+      setPosts(mappedPosts);
     };
 
     fetchPosts();

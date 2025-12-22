@@ -1,10 +1,11 @@
-"use client";
+'use client'
 
-import Link from "next/link";
+import Link from 'next/link'
+import Image from 'next/image'
 
 type Props = {
-  user: any; // SupabaseのUserオブジェクトの型
-};
+  user: any // SupabaseのUserオブジェクトの型 + name, avatar_url
+}
 
 export default function AuthButton({ user }: Props) {
   return (
@@ -12,8 +13,14 @@ export default function AuthButton({ user }: Props) {
       {user ? (
         <Link href="/user-settings">
           <div className="avatar">
-            <div className="w-9 h-9 rounded-full ring ring-gray-300 cursor-pointer">
-              {/* ここにユーザーアイコンを表示する。今回は仮で何も表示しない */}
+            <div className="w-9 h-9 rounded-full ring ring-gray-300 cursor-pointer overflow-hidden">
+              <Image
+                src={user.avatar_url || '/images/dummycat.png'}
+                alt={user.name || 'user avatar'}
+                width={36}
+                height={36}
+                className="object-cover"
+              />
             </div>
           </div>
         </Link>
@@ -23,5 +30,5 @@ export default function AuthButton({ user }: Props) {
         </Link>
       )}
     </>
-  );
+  )
 }

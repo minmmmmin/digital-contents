@@ -129,8 +129,8 @@ const PostCard = ({ post, onCommentClick, onMoveMap, onImageClick, onDelete }: P
       <div className="flex-shrink-0">
         <div className="w-12 h-12 rounded-full overflow-hidden">
           <Image
-            src="/images/dummycat.png"
-            alt="user avatar"
+            src={post.avatar_url || '/images/dummycat.png'}
+            alt={post.username || 'user avatar'}
             width={48}
             height={48}
             className="object-cover"

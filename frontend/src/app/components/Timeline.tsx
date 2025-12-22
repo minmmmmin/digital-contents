@@ -146,14 +146,12 @@ const Timeline = ({ view, setView, isPC, onMoveMap, onImageClick }: TimelineProp
         image_url: row.image_url,
         caption: row.caption,
         username: row.users?.name ?? 'unknown',
+        avatar_url: row.users?.avatar_url ?? undefined,
         location: undefined,
-        imageUrl: row.image_url ?? undefined,
-        body: row.caption ?? '',
-        likes: [] as string[],
         likeCount: likeCountMap.get(row.post_id) ?? 0,
         isLiked: likedSet.has(row.post_id),
-        replies: [] as Post['replies'],
         commentCount: row.comments?.[0]?.count ?? 0,
+        replies: [],
       }))
 
       setPosts(mappedPosts)

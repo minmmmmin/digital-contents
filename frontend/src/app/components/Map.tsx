@@ -41,7 +41,7 @@ function MapInner({ center }: { center?: { lat: number; lng: number } | null }) 
   return null;
 }
 
-export default function NekoMap({ view, setView, onPinClick, center }: MapProps) {
+export default function NekoMap({ onPinClick, center }: MapProps) {
   const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
@@ -75,7 +75,7 @@ export default function NekoMap({ view, setView, onPinClick, center }: MapProps)
         setPosts([]);
         return;
       }
-      
+
       const rows = (data as unknown as FetchedPost[] | null) ?? []
       if (rows.length === 0) {
         setPosts([])
@@ -91,7 +91,7 @@ export default function NekoMap({ view, setView, onPinClick, center }: MapProps)
       if (favError) {
         console.error('Error fetching favorites:', favError)
       }
-      
+
       const favs = (favData as FavoriteRow[] | null) ?? []
       const likeCountMap = new Map<number, number>()
       const likedSet = new Set<number>()
@@ -158,6 +158,11 @@ export default function NekoMap({ view, setView, onPinClick, center }: MapProps)
           mapId={mapId}
           gestureHandling={"greedy"}
           disableDefaultUI={false}
+          streetViewControl={false}
+          mapTypeControl={false}
+          fullscreenControl={false}
+          zoomControl={false}
+          cameraControl={false}
         >
           <MapInner center={center} />
           {markers}

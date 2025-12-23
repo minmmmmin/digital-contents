@@ -59,7 +59,7 @@ const CommentPanel = ({ postId, onClose }: CommentPanelProps) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center sm:justify-center p-0 sm:p-4"
+      className="fixed inset-0 z-[101] flex items-end sm:items-center sm:justify-center p-0 sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-label="コメント"
@@ -86,7 +86,7 @@ const CommentPanel = ({ postId, onClose }: CommentPanelProps) => {
         />
 
         {/* body */}
-        <div className="h-[78vh] sm:h-[72vh] flex flex-col">
+        <div className="h-[64vh] sm:h-[72vh] flex flex-col">
           <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-3">
             <CommentList
               loading={loading}

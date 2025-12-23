@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, ReactNode, Dispatch, SetStateAction } from 'react'
+import { useState, ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 import { LayoutContext } from '@/lib/contexts/LayoutContext'
 import { useWindowSize } from '@/lib/hooks/useWindowSize'
@@ -19,6 +19,7 @@ export default function LayoutProvider({ children, user }: Props) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isPostModalOpen, setIsPostModalOpen] = useState(false)
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false)
+  const [isMapFullScreen, setIsMapFullScreen] = useState(false)
 
   const { width } = useWindowSize()
   const isPC = width > 1024
@@ -35,6 +36,8 @@ export default function LayoutProvider({ children, user }: Props) {
     user,
     isLoginPromptOpen,
     setIsLoginPromptOpen,
+    isMapFullScreen,
+    setIsMapFullScreen,
   }
 
   return (

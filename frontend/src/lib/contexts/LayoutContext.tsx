@@ -12,6 +12,8 @@ type LayoutContextType = {
   user: User | null
   isLoginPromptOpen: boolean
   setIsLoginPromptOpen: Dispatch<SetStateAction<boolean>>
+  isMapFullScreen: boolean
+  setIsMapFullScreen: Dispatch<SetStateAction<boolean>>
 }
 
 export const LayoutContext = createContext<LayoutContextType | undefined>(undefined)

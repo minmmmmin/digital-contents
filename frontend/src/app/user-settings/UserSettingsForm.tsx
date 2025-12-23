@@ -1,13 +1,20 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { useFormStatus } from 'react-dom'
 import Image from 'next/image'
-import ReactCrop, { type Crop, centerCrop, makeAspectCrop } from 'react-image-crop'
+import ReactCrop, {
+  type Crop,
+  type PercentCrop,
+  centerCrop,
+  makeAspectCrop,
+} from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 import { createClient } from '@/lib/supabase/client'
 import { updateUserAvatar, updateUserName } from './actions'
+import LoginPromptModal from '../components/LoginPromptModal'
+import { useRouter } from 'next/navigation'
 
 // #region Helper functions
 function centerAspectCrop(mediaWidth: number, mediaHeight: number, aspect: number) {
@@ -84,13 +91,15 @@ const initialState = {
 function SubmitButton() {
   const { pending } = useFormStatus()
   return (
-    <button type="submit" className="btn btn-primary w-full" disabled={pending}>
+    <button type="submit" className="btn btn-accent" disabled={pending}>
       {pending ? 'ユーザー名を更新中...' : 'ユーザー名を更新'}
     </button>
   )
 }
 
 export default function UserSettingsForm({ user, profile }: Props) {
+  const router = useRouter()
+  const [isLoginModalOpen, setLoginModalOpen] = useState(!user)
   const [responseState, setResponseState] = useState(initialState)
   const [showResultModal, setShowResultModal] = useState(false)
   const supabase = createClient()
@@ -107,11 +116,16 @@ export default function UserSettingsForm({ user, profile }: Props) {
   const imgRef = useRef<HTMLImageElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    if (responseState.message) {
-      setShowResultModal(true)
-    }
-  }, [responseState])
+
+
+  const handleCloseLoginModal = () => {
+    setLoginModalOpen(false)
+    router.push('/')
+  }
+
+  if (!user) {
+    return <LoginPromptModal isOpen={isLoginModalOpen} onClose={handleCloseLoginModal} />
+  }
 
   const handleCloseResultModal = () => {
     setShowResultModal(false)
@@ -162,6 +176,7 @@ export default function UserSettingsForm({ user, profile }: Props) {
 
       const result = await updateUserAvatar(formData)
       setResponseState(result)
+      setShowResultModal(true)
 
       // 失敗した場合は、プレビューを元のURLに戻す
       if (!result.success) {
@@ -174,6 +189,7 @@ export default function UserSettingsForm({ user, profile }: Props) {
   const handleNameSubmit = async (formData: FormData) => {
     const result = await updateUserName(formData)
     setResponseState(result)
+    setShowResultModal(true)
   }
 
   const handleLogout = async () => {
@@ -181,9 +197,10 @@ export default function UserSettingsForm({ user, profile }: Props) {
     window.location.assign('/login')
   }
 
+
   return (
     <>
-      <div className="space-y-6 max-w-md mx-auto">
+      <div className="space-y-8">
         <div className="flex flex-col items-center space-y-4">
           <div className="avatar relative">
             {isAvatarUpdating && (
@@ -191,14 +208,14 @@ export default function UserSettingsForm({ user, profile }: Props) {
                 <span className="loading loading-spinner loading-lg"></span>
               </div>
             )}
-            <div className="w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+            <div className="w-24 rounded-full ring ring-accent-content ring-offset-base-100 ring-offset-2">
               <Image
                 src={previewUrl || '/images/dummycat.png'}
                 alt="Avatar preview"
                 width={96}
                 height={96}
                 className="object-cover"
-                key={previewUrl} // URLが変わった時にImageコンポーネントを再マウントさせる
+                key={previewUrl}
               />
             </div>
           </div>
@@ -212,7 +229,7 @@ export default function UserSettingsForm({ user, profile }: Props) {
           />
           <button
             type="button"
-            className="btn btn-sm btn-outline"
+            className="btn btn-accent btn-sm"
             onClick={() => fileInputRef.current?.click()}
             disabled={isAvatarUpdating}
           >
@@ -220,40 +237,42 @@ export default function UserSettingsForm({ user, profile }: Props) {
           </button>
         </div>
 
-        <form action={handleNameSubmit}>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              メールアドレス
+        <div className="divider"></div>
+
+        <form action={handleNameSubmit} className="space-y-4">
+          <div className="form-control w-full">
+            <label className="label">
+              <span className="label-text">メールアドレス</span>
             </label>
             <input
               type="email"
               id="email"
               value={user?.email || ''}
               disabled
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed"
+              className="input input-bordered w-full bg-base-200"
             />
           </div>
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-              ユーザー名
+
+          <div className="form-control w-full">
+            <label className="label" htmlFor="name">
+              <span className="label-text">ユーザー名</span>
             </label>
             <input
               type="text"
               id="name"
               name="name"
               defaultValue={profile?.name || ''}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="input input-bordered w-full"
               placeholder="ねこマスター"
             />
           </div>
-          <SubmitButton />
+          <div className="pt-4 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <SubmitButton />
+            <button type="button" className="btn btn-error btn-outline" onClick={handleLogout}>
+              ログアウト
+            </button>
+          </div>
         </form>
-      </div>
-
-      <div className="mt-8 text-center">
-        <button className="btn btn-error" onClick={handleLogout}>
-          ログアウト
-        </button>
       </div>
 
       {/* Result Modal */}
@@ -280,8 +299,10 @@ export default function UserSettingsForm({ user, profile }: Props) {
               {imgSrc && (
                 <ReactCrop
                   crop={crop}
-                  onChange={(_, percentCrop) => setCrop(percentCrop)}
-                  onComplete={(c) => setCompletedCrop(c)}
+                  onChange={(_: Crop, percentCrop: PercentCrop) =>
+                    setCrop(percentCrop)
+                  }
+                  onComplete={(c: Crop) => setCompletedCrop(c)}
                   aspect={aspect}
                   minWidth={100}
                   minHeight={100}
@@ -291,7 +312,7 @@ export default function UserSettingsForm({ user, profile }: Props) {
                     alt="Crop me"
                     src={imgSrc}
                     onLoad={onImageLoad}
-                    width={800} // Set a large enough size for the crop component
+                    width={800}
                     height={600}
                     style={{ maxHeight: '70vh' }}
                   />
@@ -308,7 +329,7 @@ export default function UserSettingsForm({ user, profile }: Props) {
               >
                 キャンセル
               </button>
-              <button className="btn btn-primary" onClick={handleCropComplete}>
+              <button className="btn btn-accent" onClick={handleCropComplete}>
                 決定
               </button>
             </div>

@@ -57,10 +57,10 @@ const CommentForm = ({ postId, user, onCommentPosted }: CommentFormProps) => {
     return (
       <div className="border-t border-base-200 bg-base-100 px-4 py-4 text-center text-sm text-base-content/70">
         コメントを投稿するには{' '}
-        <a href="/login" className="link link-primary">
+        <a href="/login" className="bg-secondary text-secondary-content px-3 py-1 rounded-md">
           ログイン
         </a>
-        が必要です。
+        {' '}が必要です。
       </div>
     )
   }
@@ -80,7 +80,7 @@ const CommentForm = ({ postId, user, onCommentPosted }: CommentFormProps) => {
         />
         {error && <p className="text-error text-sm mt-1">{error}</p>}
         <div className="mt-2 flex items-center justify-end">
-          <button type="submit" disabled={!newComment.trim() || isSubmitting} className="btn btn-primary btn-sm">
+          <button type="submit" disabled={!newComment.trim() || isSubmitting} className="btn btn-accent btn-sm">
             {isSubmitting ? <span className="loading loading-spinner loading-xs" /> : '投稿'}
           </button>
         </div>

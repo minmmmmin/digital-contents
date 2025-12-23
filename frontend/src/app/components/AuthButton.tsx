@@ -25,7 +25,7 @@ export default function AuthButton({ user }: Props) {
           </div>
         </Link>
       ) : (
-        <Link href="/login" className="btn btn-primary btn-sm">
+        <Link href="/login" className="btn btn-secondary btn-sm">
           ログイン
         </Link>
       )}

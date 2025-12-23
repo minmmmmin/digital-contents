@@ -3,11 +3,8 @@
 import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import SelectableMap from "./SelectableMap";
-import Button from "./Button";
 import { compressImage } from "@/lib/image/compressImage";
 import { createPost } from "@/lib/posts/createPosts";
-
-
 
 type PostFormProps = {
   onClose?: () => void; // モーダルを閉じるための関数
@@ -218,13 +215,13 @@ export default function PostForm({ onClose }: PostFormProps) {
             className="btn rounded-full px-6 py-3 shadow-sm"
             onClick={onClose} // onCloseを呼び出す
           >
-            下書きを保存
+            キャンセル
           </button>
 
           <div>
             <button
               type="button"
-              className="btn btn-primary rounded-full px-6 py-3 shadow-sm"
+              className="btn btn-accent rounded-full px-6 py-3 shadow-sm"
               onClick={handleSubmitPost}
             >
               <div className="flex items-center gap-2">

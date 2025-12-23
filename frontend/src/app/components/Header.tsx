@@ -1,7 +1,7 @@
 "use client";
 
 import AuthButton from "./AuthButton";
-
+import Link from "next/link";
 import type { AppUser } from '@/types/user'
 
 type Props = {
@@ -32,7 +32,11 @@ export default function Header({ onMenuClick, user }: Props) {
             />
           </svg>
         </button>
-        <h1 className="text-2xl font-bold">ねこあるき</h1>
+        <Link href="/">
+          <h1 className="text-2xl font-bold cursor-pointer">
+            ねこあるき
+          </h1>
+        </Link>
         <AuthButton user={user} />
       </div>
     </header>

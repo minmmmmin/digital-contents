@@ -86,7 +86,7 @@ const CommentPanel = ({ postId, onClose }: CommentPanelProps) => {
         />
 
         {/* body */}
-        <div className="h-[78vh] sm:h-[72vh] flex flex-col">
+        <div className="h-[64vh] sm:h-[72vh] flex flex-col">
           <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-3">
             <CommentList
               loading={loading}

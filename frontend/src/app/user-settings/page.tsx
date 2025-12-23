@@ -14,9 +14,11 @@ export default async function UserSetting() {
   }
 
   return (
-    <main className="p-4">
-      <h2 className="text-2xl font-bold mb-4">ユーザー設定</h2>
-      <UserSettingsForm user={user} profile={profile} />
+    <main className="bg-base-200 p-4 sm:p-8 w-full overflow-y-auto">
+      <div className="max-w-2xl mx-auto bg-base-100 p-6 sm:p-10 rounded-2xl shadow-lg">
+        <h2 className="text-3xl font-bold mb-8 text-center">ユーザー設定</h2>
+        <UserSettingsForm user={user} profile={profile} />
+      </div>
     </main>
   )
 }

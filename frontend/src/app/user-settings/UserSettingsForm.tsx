@@ -86,7 +86,7 @@ const initialState = {
 function SubmitButton() {
   const { pending } = useFormStatus()
   return (
-    <button type="submit" className="btn btn-accent w-full" disabled={pending}>
+    <button type="submit" className="btn btn-accent" disabled={pending}>
       {pending ? 'ユーザー名を更新中...' : 'ユーザー名を更新'}
     </button>
   )
@@ -95,7 +95,6 @@ function SubmitButton() {
 export default function UserSettingsForm({ user, profile }: Props) {
   const router = useRouter()
   const [isLoginModalOpen, setLoginModalOpen] = useState(!user)
-  
   const [responseState, setResponseState] = useState(initialState)
   const [showResultModal, setShowResultModal] = useState(false)
   const supabase = createClient()
@@ -198,7 +197,7 @@ export default function UserSettingsForm({ user, profile }: Props) {
 
   return (
     <>
-      <div className="space-y-6 max-w-md mx-auto">
+      <div className="space-y-8">
         <div className="flex flex-col items-center space-y-4">
           <div className="avatar relative">
             {isAvatarUpdating && (
@@ -213,7 +212,7 @@ export default function UserSettingsForm({ user, profile }: Props) {
                 width={96}
                 height={96}
                 className="object-cover"
-                key={previewUrl} // URLが変わった時にImageコンポーネントを再マウントさせる
+                key={previewUrl}
               />
             </div>
           </div>
@@ -227,7 +226,7 @@ export default function UserSettingsForm({ user, profile }: Props) {
           />
           <button
             type="button"
-            className="btn btn-sm btn-outline"
+            className="btn btn-accent btn-sm"
             onClick={() => fileInputRef.current?.click()}
             disabled={isAvatarUpdating}
           >
@@ -235,40 +234,42 @@ export default function UserSettingsForm({ user, profile }: Props) {
           </button>
         </div>
 
-        <form action={handleNameSubmit}>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              メールアドレス
+        <div className="divider"></div>
+
+        <form action={handleNameSubmit} className="space-y-4">
+          <div className="form-control w-full">
+            <label className="label">
+              <span className="label-text">メールアドレス</span>
             </label>
             <input
               type="email"
               id="email"
               value={user?.email || ''}
               disabled
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed"
+              className="input input-bordered w-full bg-base-200"
             />
           </div>
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-              ユーザー名
+
+          <div className="form-control w-full">
+            <label className="label" htmlFor="name">
+              <span className="label-text">ユーザー名</span>
             </label>
             <input
               type="text"
               id="name"
               name="name"
               defaultValue={profile?.name || ''}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="input input-bordered w-full"
               placeholder="ねこマスター"
             />
           </div>
-          <SubmitButton />
+          <div className="pt-4 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <SubmitButton />
+            <button type="button" className="btn btn-error btn-outline" onClick={handleLogout}>
+              ログアウト
+            </button>
+          </div>
         </form>
-      </div>
-
-      <div className="mt-8 text-center">
-        <button className="btn btn-error" onClick={handleLogout}>
-          ログアウト
-        </button>
       </div>
 
       {/* Result Modal */}
@@ -306,7 +307,7 @@ export default function UserSettingsForm({ user, profile }: Props) {
                     alt="Crop me"
                     src={imgSrc}
                     onLoad={onImageLoad}
-                    width={800} // Set a large enough size for the crop component
+                    width={800}
                     height={600}
                     style={{ maxHeight: '70vh' }}
                   />

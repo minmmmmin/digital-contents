@@ -15,6 +15,7 @@ export default function PostForm({ onClose }: PostFormProps) {
   const [comment, setComment] = useState("");
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [isPosting, setIsPosting] = useState(false); // Add this line
 
   // 画像プレビュー表示のためのURL生成
   const previewUrl = useMemo(() => {
@@ -44,6 +45,8 @@ export default function PostForm({ onClose }: PostFormProps) {
   };
 
   const handleSubmitPost = async () => {
+    if (isPosting) return; // Prevent double submission
+
     try {
       if (!file) {
         alert("画像を選択してください");
@@ -59,6 +62,8 @@ export default function PostForm({ onClose }: PostFormProps) {
         alert("位置情報を選択してください");
         return;
       }
+
+      setIsPosting(true); // Set posting state to true
 
       await createPost({
         caption: comment,
@@ -81,6 +86,8 @@ export default function PostForm({ onClose }: PostFormProps) {
       alert(
         e instanceof Error ? e.message : "投稿に失敗しました"
       );
+    } finally {
+      setIsPosting(false); // Set posting state to false regardless of success or failure
     }
   };
 
@@ -183,7 +190,7 @@ export default function PostForm({ onClose }: PostFormProps) {
               type="button"
               className="btn btn-sm"
               onClick={handleGetCurrentLocation}
-              disabled={isGettingLocation}
+              disabled={isGettingLocation || isPosting} // Disable during posting
             >
               {isGettingLocation ? "取得中..." : "現在地から設定"}
             </button>
@@ -204,6 +211,7 @@ export default function PostForm({ onClose }: PostFormProps) {
             onChange={(e) => setComment(e.target.value)}
             placeholder="コメントを入力して下さい。"
             className="w-full h-28 border rounded-md p-3 resize-none"
+            disabled={isPosting} // Disable during posting
           />
         </section>
       </div>
@@ -214,6 +222,7 @@ export default function PostForm({ onClose }: PostFormProps) {
             type="button"
             className="btn rounded-full px-6 py-3 shadow-sm"
             onClick={onClose} // onCloseを呼び出す
+            disabled={isPosting} // Disable during posting
           >
             キャンセル
           </button>
@@ -223,23 +232,33 @@ export default function PostForm({ onClose }: PostFormProps) {
               type="button"
               className="btn btn-accent rounded-full px-6 py-3 shadow-sm"
               onClick={handleSubmitPost}
+              disabled={isPosting} // Disable during posting
             >
               <div className="flex items-center gap-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M14 5l7 7m0 0l-7 7m7-7H3"
-                  />
-                </svg>
-                <span>投稿する</span>
+                {isPosting ? (
+                  <>
+                    <span className="loading loading-spinner loading-sm"></span>
+                    <span>投稿中...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      />
+                    </svg>
+                    <span>投稿する</span>
+                  </>
+                )}
               </div>
             </button>
           </div>
@@ -248,3 +267,4 @@ export default function PostForm({ onClose }: PostFormProps) {
     </div>
   );
 }
+

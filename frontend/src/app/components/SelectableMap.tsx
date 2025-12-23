@@ -80,7 +80,31 @@ export default function SelectableMap({
           cameraControl={false}
         >
 
-          {value && <AdvancedMarker position={value} />}
+          {value &&
+            <AdvancedMarker position={value}>
+              <div
+                style={{
+                  position: 'relative',
+                  width: 0,
+                  height: 0,
+                }}
+              >
+                <img
+                  src="/cat-pin.png"
+                  alt="cat pin"
+                  width={60}
+                  height={60}
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    bottom: 0,
+                    transform: 'translate(-50%, 0)',
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                  }}
+                />
+              </div>
+            </AdvancedMarker>}
           <MapController value={value} />
         </GoogleMap>
       </APIProvider>

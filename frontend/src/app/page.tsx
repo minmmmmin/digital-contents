@@ -20,16 +20,24 @@ export default function Home() {
   if (!layoutContext) {
     throw new Error("LayoutContext must be used within a LayoutProvider");
   }
-  const { isPC, setIsPostModalOpen, user, setIsLoginPromptOpen, isMapFullScreen } = layoutContext;
+  const {
+    isPC,
+    setIsPostModalOpen,
+    user,
+    setIsLoginPromptOpen,
+    isMapFullScreen,
+  } = layoutContext;
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [commentingPostId, setCommentingPostId] = useState<number | null>(null);
 
   const [mapCenter, setMapCenter] = useState({
     lat: 35.662186020148546,
     lng: 139.63409803900635,
-  })
+  });
 
-  const [fullscreenImageUrl, setFullscreenImageUrl] = useState<string | null>(null)
+  const [fullscreenImageUrl, setFullscreenImageUrl] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     if (searchParams.get("login") === "success") {
@@ -59,8 +67,8 @@ export default function Home() {
   };
 
   const handleImageClick = (imageUrl: string) => {
-    setFullscreenImageUrl(imageUrl)
-  }
+    setFullscreenImageUrl(imageUrl);
+  };
 
   const handleCommentClick = (postId: number) => {
     setSelectedPost(null); // 投稿詳細モーダルを閉じる
@@ -71,44 +79,82 @@ export default function Home() {
     <>
       {isPC ? (
         <>
-          <div className={`transition-all duration-300 ease-in-out ${isMapFullScreen ? 'w-0 opacity-0' : 'w-128 h-full flex flex-col border-r border-gray-200'}`}>
+          <div
+            className={`transition-all duration-300 ease-in-out ${
+              isMapFullScreen
+                ? "w-0 opacity-0"
+                : "w-128 h-full flex flex-col border-r border-gray-200"
+            }`}
+          >
             <TabsBar />
             <div className="flex-1 overflow-y-auto">
-              <Timeline view="timeline" setView={setView} isPC={isPC}
-                onMoveMap={(lat, lng) => { setMapCenter({ lat, lng }) }}
+              <Timeline
+                view="timeline"
+                setView={setView}
+                isPC={isPC}
+                onMoveMap={(lat, lng) => {
+                  setMapCenter({ lat, lng });
+                }}
                 onImageClick={handleImageClick}
               />
             </div>
           </div>
           <div className="flex-1 h-full">
-            <NekoMap view="map" setView={setView} onPinClick={handlePinClick} center={mapCenter} onCenterChange={setMapCenter} isPC={isPC} />
+            <NekoMap
+              view="map"
+              setView={setView}
+              onPinClick={handlePinClick}
+              center={mapCenter}
+              onCenterChange={setMapCenter}
+              isPC={isPC}
+            />
           </div>
         </>
       ) : (
         <div className="flex-1 flex flex-col min-h-0 w-full">
           <div
             className={`transition-all duration-300 ease-in-out overflow-hidden ${
-              isMapFullScreen || view === "map" ? "flex-1" : view === "split" ? "h-1/2" : "h-0"
+              isMapFullScreen || view === "map"
+                ? "flex-1"
+                : view === "split"
+                ? "h-1/2"
+                : "h-0"
             }`}
           >
-              <NekoMap view={view} setView={setView} onPinClick={handlePinClick} center={mapCenter} onCenterChange={setMapCenter} isPC={isPC} />
+            <NekoMap
+              view={view}
+              setView={setView}
+              onPinClick={handlePinClick}
+              center={mapCenter}
+              onCenterChange={setMapCenter}
+              isPC={isPC}
+            />
           </div>
-          <div className={`${isMapFullScreen || view === "map" ? "hidden" : ""}`}>
+          <div
+            className={`${isMapFullScreen || view === "map" ? "hidden" : ""}`}
+          >
             <TabsBar />
           </div>
           <div
             className={`transition-all duration-300 ease-in-out overflow-hidden ${
-              isMapFullScreen ? 'h-0' : view === "split"
+              isMapFullScreen
+                ? "h-0"
+                : view === "split"
                 ? "flex-1 min-h-0"
                 : view === "timeline"
                 ? "flex-1 min-h-0"
                 : "h-0"
             }`}
           >
-              <Timeline view={view} setView={setView} isPC={isPC}
-                onMoveMap={(lat, lng) => { setMapCenter({ lat, lng }) }}
-                onImageClick={handleImageClick}
-              />
+            <Timeline
+              view={view}
+              setView={setView}
+              isPC={isPC}
+              onMoveMap={(lat, lng) => {
+                setMapCenter({ lat, lng });
+              }}
+              onImageClick={handleImageClick}
+            />
           </div>
         </div>
       )}
@@ -155,10 +201,17 @@ export default function Home() {
 
       {/* ピンクリック時の詳細表示モーダル */}
       {selectedPost && (
-        <dialog id="post_details_modal" className="modal modal-open">
-          <div className="modal-box">
-            <PostCard post={selectedPost}
-              onMoveMap={(lat, lng) => { setMapCenter({ lat, lng }) }}
+        <dialog
+          id="post_details_modal"
+          className="modal modal-open"
+          onClick={() => setSelectedPost(null)}
+        >
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <PostCard
+              post={selectedPost}
+              onMoveMap={(lat, lng) => {
+                setMapCenter({ lat, lng });
+              }}
               onCommentClick={handleCommentClick}
               onImageClick={handleImageClick}
             />
@@ -173,7 +226,10 @@ export default function Home() {
 
       {/* コメントパネル */}
       {commentingPostId !== null && (
-        <CommentPanel postId={commentingPostId} onClose={() => setCommentingPostId(null)} />
+        <CommentPanel
+          postId={commentingPostId}
+          onClose={() => setCommentingPostId(null)}
+        />
       )}
 
       {/*画像拡大表示のモーダル*/}
@@ -183,7 +239,6 @@ export default function Home() {
           onClose={() => setFullscreenImageUrl(null)}
         />
       )}
-
     </>
   );
 }

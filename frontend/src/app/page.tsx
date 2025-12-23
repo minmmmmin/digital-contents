@@ -1,13 +1,14 @@
 "use client";
 import { useState, useEffect, useContext } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Map from "./components/Map";
+import NekoMap from "./components/Map";
 import TabsBar from "./components/TabsBar";
 import Timeline from "./components/Timeline";
 import { LayoutContext } from "@/lib/contexts/LayoutContext";
 import type { Post } from "@/types/post";
 import PostCard from "./components/PostCard";
 import FullscreenImageModal from "./components/FullScreenImageModal";
+import CommentPanel from "./components/CommentPanel";
 
 export default function Home() {
   const [view, setView] = useState<"split" | "map" | "timeline">("split");
@@ -19,8 +20,9 @@ export default function Home() {
   if (!layoutContext) {
     throw new Error("LayoutContext must be used within a LayoutProvider");
   }
-  const { isPC, setIsPostModalOpen } = layoutContext;
+  const { isPC, setIsPostModalOpen, user, setIsLoginPromptOpen, isMapFullScreen } = layoutContext;
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [commentingPostId, setCommentingPostId] = useState<number | null>(null);
 
   const [mapCenter, setMapCenter] = useState({
     lat: 35.662186020148546,
@@ -32,13 +34,19 @@ export default function Home() {
   useEffect(() => {
     if (searchParams.get("login") === "success") {
       router.refresh();
-      setShowSuccessModal(true);
+      setTimeout(() => {
+        setShowSuccessModal(true);
+      }, 0);
       // URLからクエリパラメータを削除
       router.replace("/", { scroll: false });
     }
   }, [searchParams, router]);
 
   const handlePostButtonClick = () => {
+    if (!user) {
+      setIsLoginPromptOpen(true);
+      return;
+    }
     if (isPC) {
       setIsPostModalOpen(true);
     } else {
@@ -54,11 +62,16 @@ export default function Home() {
     setFullscreenImageUrl(imageUrl)
   }
 
+  const handleCommentClick = (postId: number) => {
+    setSelectedPost(null); // 投稿詳細モーダルを閉じる
+    setCommentingPostId(postId); // コメントパネルを開く
+  };
+
   return (
     <>
       {isPC ? (
         <>
-          <div className="w-128 h-full flex flex-col border-r border-gray-200">
+          <div className={`transition-all duration-300 ease-in-out ${isMapFullScreen ? 'w-0 opacity-0' : 'w-128 h-full flex flex-col border-r border-gray-200'}`}>
             <TabsBar />
             <div className="flex-1 overflow-y-auto">
               <Timeline view="timeline" setView={setView} isPC={isPC}
@@ -68,24 +81,24 @@ export default function Home() {
             </div>
           </div>
           <div className="flex-1 h-full">
-            <Map view="map" setView={setView} onPinClick={handlePinClick} center={mapCenter} />
+            <NekoMap view="map" setView={setView} onPinClick={handlePinClick} center={mapCenter} onCenterChange={setMapCenter} isPC={isPC} />
           </div>
         </>
       ) : (
         <div className="flex-1 flex flex-col min-h-0 w-full">
           <div
             className={`transition-all duration-300 ease-in-out overflow-hidden ${
-              view === "split" ? "h-1/2" : view === "map" ? "flex-1" : "h-0"
+              isMapFullScreen || view === "map" ? "flex-1" : view === "split" ? "h-1/2" : "h-0"
             }`}
           >
-              <Map view={view} setView={setView} onPinClick={handlePinClick} center={mapCenter} />
+              <NekoMap view={view} setView={setView} onPinClick={handlePinClick} center={mapCenter} onCenterChange={setMapCenter} isPC={isPC} />
           </div>
-          <div className={`${view === "map" ? "hidden" : ""}`}>
+          <div className={`${isMapFullScreen || view === "map" ? "hidden" : ""}`}>
             <TabsBar />
           </div>
           <div
             className={`transition-all duration-300 ease-in-out overflow-hidden ${
-              view === "split"
+              isMapFullScreen ? 'h-0' : view === "split"
                 ? "flex-1 min-h-0"
                 : view === "timeline"
                 ? "flex-1 min-h-0"
@@ -103,7 +116,7 @@ export default function Home() {
       {/* 右下の投稿ボタン */}
       <button
         onClick={handlePostButtonClick}
-        className=" fixed right-6 bottom-6 z-50 btn btn-primary flex items-center gap-2 px-5 py-4 rounded-full"
+        className=" fixed right-6 bottom-6 z-50 btn btn-accent flex items-center gap-2 px-5 py-4 rounded-full"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -146,7 +159,7 @@ export default function Home() {
           <div className="modal-box">
             <PostCard post={selectedPost}
               onMoveMap={(lat, lng) => { setMapCenter({ lat, lng }) }}
-              onCommentClick={() => setSelectedPost(null)}
+              onCommentClick={handleCommentClick}
               onImageClick={handleImageClick}
             />
             <div className="modal-action">
@@ -156,6 +169,11 @@ export default function Home() {
             </div>
           </div>
         </dialog>
+      )}
+
+      {/* コメントパネル */}
+      {commentingPostId !== null && (
+        <CommentPanel postId={commentingPostId} onClose={() => setCommentingPostId(null)} />
       )}
 
       {/*画像拡大表示のモーダル*/}
@@ -169,4 +187,3 @@ export default function Home() {
     </>
   );
 }
-

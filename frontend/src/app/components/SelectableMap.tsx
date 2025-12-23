@@ -77,6 +77,7 @@ export default function SelectableMap({
           mapTypeControl={false}
           fullscreenControl={false}
           clickableIcons={false}
+          cameraControl={false}
         >
 
           {value && <AdvancedMarker position={value} />}

@@ -77,15 +77,15 @@ export default function MainMenu({ open, onClose }: Props) {
               <div className="avatar">
                 <div className="w-12 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
                   <Image
-                    src={user.user_metadata.avatar_url || '/images/dummycat.png'}
+                    src={user.avatar_url || '/images/dummycat.png'}
                     width={48}
                     height={48}
-                    alt={user.user_metadata.name || 'アバター'}
+                    alt={user.name || 'アバター'}
                   />
                 </div>
               </div>
               <div>
-                <div className="font-bold text-lg">{user.user_metadata.name || 'Guest'}</div>
+                <div className="font-bold text-lg">{user.name || 'Guest'}</div>
                 <span className="text-sm text-base-content/70">{user.email}</span>
               </div>
             </div>

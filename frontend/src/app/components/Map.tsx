@@ -45,7 +45,7 @@ function MapInner({ center }: { center?: { lat: number; lng: number } | null }) 
   return null;
 }
 
-export default function NekoMap({onPinClick, center, onCenterChange}: MapProps) {
+export default function NekoMap({view, setView, onPinClick, center, onCenterChange, isPC}: MapProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
 
@@ -249,7 +249,12 @@ export default function NekoMap({onPinClick, center, onCenterChange}: MapProps) 
 
       {/* 右上：全画面 */}
       <button
-        onClick={() => setIsMapFullScreen((prev) => !prev)}
+        onClick={() => {
+          setIsMapFullScreen((prev) => !prev);
+          if (setView) {
+            setView(view === 'map' ? 'split' : 'map');
+          }
+        }}
         className="absolute top-4 right-4 z-10 bg-white backdrop-blur-sm p-2 rounded-md shadow-lg hover:bg-white cursor-pointer"
         aria-label={isMapFullScreen ? "地図を元のサイズに戻す" : "地図を全画面表示"}
       >

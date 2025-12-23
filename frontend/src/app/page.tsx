@@ -26,6 +26,7 @@ export default function Home() {
     user,
     setIsLoginPromptOpen,
     isMapFullScreen,
+    setIsMapFullScreen,
   } = layoutContext;
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [commentingPostId, setCommentingPostId] = useState<number | null>(null);
@@ -75,6 +76,15 @@ export default function Home() {
     setCommentingPostId(postId); // コメントパネルを開く
   };
 
+  // 「地図で見る」の共通処理
+  const handleMoveMap = (lat: number, lng: number) => {
+    setMapCenter({ lat, lng });
+    if (!isPC) {
+      setIsMapFullScreen(true);
+      setView('map');
+    }
+  };
+
   return (
     <>
       {isPC ? (
@@ -92,9 +102,7 @@ export default function Home() {
                 view="timeline"
                 setView={setView}
                 isPC={isPC}
-                onMoveMap={(lat, lng) => {
-                  setMapCenter({ lat, lng });
-                }}
+                onMoveMap={handleMoveMap}
                 onImageClick={handleImageClick}
               />
             </div>
@@ -150,9 +158,7 @@ export default function Home() {
               view={view}
               setView={setView}
               isPC={isPC}
-              onMoveMap={(lat, lng) => {
-                setMapCenter({ lat, lng });
-              }}
+              onMoveMap={handleMoveMap}
               onImageClick={handleImageClick}
             />
           </div>
@@ -210,7 +216,8 @@ export default function Home() {
             <PostCard
               post={selectedPost}
               onMoveMap={(lat, lng) => {
-                setMapCenter({ lat, lng });
+                handleMoveMap(lat, lng);
+                setSelectedPost(null);
               }}
               onCommentClick={handleCommentClick}
               onImageClick={handleImageClick}

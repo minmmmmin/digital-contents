@@ -2,6 +2,7 @@
 
 import { createContext, Dispatch, SetStateAction } from 'react'
 import type { User } from '@supabase/supabase-js'
+import type { AppUser } from '@/types/user' // AppUserをインポート
 
 type LayoutContextType = {
   isMenuOpen: boolean
@@ -9,7 +10,7 @@ type LayoutContextType = {
   isPostModalOpen: boolean
   setIsPostModalOpen: (isOpen: boolean) => void
   isPC: boolean
-  user: User | null
+  user: AppUser | null // 型をAppUserに変更
   isLoginPromptOpen: boolean
   setIsLoginPromptOpen: Dispatch<SetStateAction<boolean>>
   isMapFullScreen: boolean

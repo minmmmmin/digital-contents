@@ -165,17 +165,22 @@ const Timeline = ({ view, setView, isPC, onMoveMap, onImageClick }: TimelineProp
     <>
       <div className="relative bg-gray-100 h-full overflow-y-auto">
         {view !== 'map' && !isPC && (
-          <button
-            onClick={() => setView(view === 'split' ? 'timeline' : 'split')}
-            className="sticky top-4 right-4 bg-white/70 backdrop-blur-sm p-2 rounded-md shadow-lg hover:bg-white z-10 float-right mr-4 cursor-pointer"
-          >
-            <Image
-              src={view === 'split' ? '/fullscreen_icon.png' : '/fullscreen_close_icon.png'}
-              alt="Toggle Fullscreen"
-              width={24}
-              height={24}
-            />
-          </button>
+          <div className="sticky top-4 z-20 h-0">
+            <div className="flex justify-end pr-4">
+              <button
+                onClick={() => setView(view === 'split' ? 'timeline' : 'split')}
+                className="bg-white/70 backdrop-blur-sm p-2 rounded-md shadow-lg hover:bg-white cursor-pointer"
+              >
+                <Image
+                  src={view === 'split' ? '/fullscreen_icon.png' : '/fullscreen_close_icon.png'}
+                  alt="Toggle Fullscreen"
+                  width={24}
+                  height={24}
+                />
+              </button>
+            </div>
+          </div>
+
         )}
 
         <div className="max-w-xl mx-auto bg-white border-x border-gray-200">

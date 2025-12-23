@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useContext } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { LayoutContext } from "@/lib/contexts/LayoutContext";
 
 const tabs = [
   { label: "すべての猫", href: "/" },
@@ -14,6 +15,11 @@ export default function TabsBar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const filter = searchParams.get("filter");
+  const layoutContext = useContext(LayoutContext);
+  if (!layoutContext) {
+    throw new Error("LayoutContext must be used within a LayoutProvider");
+  }
+  const { user, setIsLoginPromptOpen } = layoutContext;
 
   const tabRefs = useRef<{ [key: string]: HTMLAnchorElement | null }>({});
   const indicatorRef = useRef<HTMLDivElement | null>(null);
@@ -27,6 +33,18 @@ export default function TabsBar() {
 
   const activeTabHref = getActiveTabHref();
 
+  const handleTabClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string
+  ) => {
+    if (href === "/") return;
+
+    if (!user) {
+      e.preventDefault();
+      setIsLoginPromptOpen(true);
+    }
+  };
+
   useEffect(() => {
     const el = tabRefs.current[activeTabHref];
     const indicator = indicatorRef.current;
@@ -39,13 +57,16 @@ export default function TabsBar() {
 
   return (
     <div className="w-full border-b bg-base-100">
-                  <div className="flex justify-around overflow-x-auto relative">        {tabs.map((tab) => (
+      <div className="flex justify-around overflow-x-auto relative">
+        {" "}
+        {tabs.map((tab) => (
           <Link
             key={tab.href}
             href={tab.href}
             ref={(el) => {
               tabRefs.current[tab.href] = el;
             }}
+            onClick={(e) => handleTabClick(e, tab.href)}
             className={`
               px-4
               whitespace-nowrap
@@ -63,7 +84,6 @@ export default function TabsBar() {
             {tab.label}
           </Link>
         ))}
-
         <div
           ref={indicatorRef}
           className="absolute bottom-0 h-0.5 md:h-[3px] bg-black transition-all duration-300"

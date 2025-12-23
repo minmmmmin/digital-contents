@@ -8,11 +8,11 @@ import Header from './Header'
 import MainMenu from './MainMenu'
 import PostForm from './PostForm'
 import LoginPromptModal from './LoginPromptModal'
-import type { User } from '@supabase/supabase-js'
+import type { AppUser } from '@/types/user'
 
 type Props = {
   children: ReactNode
-  user: User | null
+  user: AppUser | null
 }
 
 export default function LayoutProvider({ children, user }: Props) {

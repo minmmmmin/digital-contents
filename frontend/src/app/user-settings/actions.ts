@@ -19,6 +19,19 @@ export async function updateUserAvatar(
     return { success: false, message: 'ユーザー認証に失敗しました。' }
   }
 
+  // 古いアバターのURLを取得
+  const { data: userData, error: userError } = await supabase
+    .from('users')
+    .select('avatar_url')
+    .eq('user_id', user.id)
+    .single()
+
+  if (userError) {
+    console.error('Error fetching user data:', userError)
+    return { success: false, message: 'ユーザー情報の取得に失敗しました。' }
+  }
+  const oldAvatarUrl = userData?.avatar_url
+
   const avatarFile = formData.get('avatar') as File | null
 
   if (!avatarFile || avatarFile.size === 0) {
@@ -40,6 +53,8 @@ export async function updateUserAvatar(
   const { data: publicUrlData } = supabase.storage.from('profile').getPublicUrl(filePath)
 
   if (!publicUrlData.publicUrl) {
+    // アップロードに失敗した場合は、アップロードしたファイルを削除する
+    await supabase.storage.from('profile').remove([filePath])
     return { success: false, message: 'アバターURLの取得に失敗しました。' }
   }
 
@@ -52,7 +67,25 @@ export async function updateUserAvatar(
 
   if (updateError) {
     console.error('Error updating avatar_url:', updateError)
+    // URL更新に失敗した場合は、アップロードしたファイルを削除する
+    await supabase.storage.from('profile').remove([filePath])
     return { success: false, message: `アバターURLの更新に失敗しました: ${updateError.message}` }
+  }
+
+  // 古いアバターを削除
+  if (oldAvatarUrl) {
+    try {
+      const oldAvatarPath = oldAvatarUrl.split('/profile/')[1].split('?')[0]
+      if (oldAvatarPath) {
+        const { error: removeError } = await supabase.storage.from('profile').remove([oldAvatarPath])
+        if (removeError) {
+          console.error('Error removing old avatar:', removeError)
+          // ここではエラーを返さない（メインの処理は成功しているため）
+        }
+      }
+    } catch (e) {
+      console.error('Error parsing old avatar path:', e)
+    }
   }
 
   revalidatePath('/', 'layout')
